@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\2stev\\\\Downloads\\\\your-app-builder-69-main\\\\your-app-builder-69-main\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Read(//c/Users/2stev/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/472296e0-2058-4530-b7dd-f198986dc5c5/5ad155ab-c1e7-4ca2-b90e-99c4aa06327a/skills/docx/**)",
+      "Bash(python scripts/office/unpack.py \"C:\\\\Users\\\\2stev\\\\Downloads\\\\SHADOW SLAVE WORKOUT GAME.docx\" unpacked_shadow/)",
+      "Bash(pandoc \"C:\\\\Users\\\\2stev\\\\Downloads\\\\SHADOW SLAVE WORKOUT GAME.docx\" -o - --to=plain)",
+      "Bash(npx tsc *)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(ls \"C:\\\\Users\\\\2stev\\\\Downloads\\\\your-app-builder-69-main\\\\your-app-builder-69-main\\\\\")"
+    ]
+  }
+}

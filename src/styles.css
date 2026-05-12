@@ -1,0 +1,146 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-shadow: var(--shadow);
+  --color-shadow-foreground: var(--shadow-foreground);
+  --color-ember: var(--ember);
+  --color-gold: var(--gold);
+  --color-gold-dim: var(--gold-dim);
+  --color-purple: var(--purple);
+  --color-purple-bright: var(--purple-bright);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --font-display: "Cinzel", serif;
+  --font-sans: "Raleway", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.125rem;
+
+  /* Mockup palette: dark void + gold + purple highlight */
+  --background: #0D0D0F;
+  --foreground: #E8E4D9;
+
+  --surface: #141418;
+  --surface-2: #1C1C22;
+  --surface-3: #23232C;
+
+  --card: #1C1C22;
+  --card-foreground: #E8E4D9;
+
+  --popover: #141418;
+  --popover-foreground: #E8E4D9;
+
+  /* Gold is the primary accent */
+  --primary: #C9A84C;
+  --primary-foreground: #0D0D0F;
+  --gold: #C9A84C;
+  --gold-dim: #8A6A28;
+
+  --secondary: #23232C;
+  --secondary-foreground: #E8E4D9;
+
+  --muted: #1C1C22;
+  --muted-foreground: #8A8680;
+
+  /* Purple for cores / secondary highlight */
+  --accent: #A67DD4;
+  --accent-foreground: #0D0D0F;
+  --purple: #7B5EA7;
+  --purple-bright: #A67DD4;
+
+  --destructive: #C0392B;
+  --destructive-foreground: #E8E4D9;
+
+  --border: rgba(201, 168, 76, 0.18);
+  --input: #23232C;
+  --ring: #C9A84C;
+
+  --shadow: #000000;
+  --shadow-foreground: #E8E4D9;
+  --ember: #C9A84C;
+
+  --gradient-void: radial-gradient(ellipse at 50% 0%, rgba(123, 94, 167, 0.18) 0%, #0D0D0F 60%);
+  --gradient-gold: linear-gradient(135deg, var(--gold-dim), var(--gold));
+  --gradient-purple: linear-gradient(135deg, var(--purple), var(--purple-bright));
+
+  --shadow-card: 0 4px 16px -8px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 16px rgba(201, 168, 76, 0.3);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { background: var(--background); color: var(--foreground); }
+  body {
+    background: var(--gradient-void);
+    background-attachment: fixed;
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: 0.08em; }
+  input, select, textarea { font-family: var(--font-sans); }
+}
+
+@layer utilities {
+  .text-glow { text-shadow: 0 0 12px rgba(201, 168, 76, 0.4); }
+  .text-glow-ember { text-shadow: 0 0 12px rgba(201, 168, 76, 0.5); }
+  .text-glow-purple { text-shadow: 0 0 12px rgba(166, 125, 212, 0.4); }
+  .bg-spell { background: var(--gradient-gold); }
+  .bg-ember { background: var(--gradient-gold); }
+  .bg-rank { background: linear-gradient(135deg, #1C1C22, #141418); }
+  .bg-surface { background: var(--surface); }
+  .bg-surface-2 { background: var(--surface-2); }
+  .bg-surface-3 { background: var(--surface-3); }
+  .shadow-spell { box-shadow: 0 4px 20px -6px rgba(201, 168, 76, 0.4); }
+  .shadow-ember { box-shadow: 0 0 24px -4px rgba(201, 168, 76, 0.4); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .border-rune {
+    border: 0.5px solid rgba(201, 168, 76, 0.25);
+  }
+  .border-purple-rune {
+    border: 0.5px solid rgba(123, 94, 167, 0.4);
+  }
+  .border-danger-rune {
+    border: 0.5px solid rgba(192, 57, 43, 0.3);
+  }
+  .pulse-spell { animation: pulse-spell 3s ease-in-out infinite; }
+  @keyframes pulse-spell {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.2); }
+    50% { box-shadow: 0 0 0 12px rgba(201, 168, 76, 0); }
+  }
+  .float-slow { animation: float-slow 6s ease-in-out infinite; }
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+}

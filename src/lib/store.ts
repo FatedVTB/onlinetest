@@ -60,17 +60,21 @@ const DEFAULT: GameState = {
   nightmaresPassed: 0,
 };
 
+<<<<<<< HEAD
 function renameExercise(name: string): string {
   if (name === "Plank (kg)") return "Plank";
   return name;
 }
 
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 function migrateState(raw: Partial<GameState>): GameState {
   const s: GameState = { ...DEFAULT, ...raw };
   s.equippedMemoryIds = s.equippedMemoryIds ?? [];
   if (s.aspect)    s.aspect   = migrateAspect(s.aspect);
   if (s.flaw)      s.flaw     = migrateFlaw(s.flaw);
   if (s.trueName)  s.trueName = migrateTrueName(s.trueName);
+<<<<<<< HEAD
   // Rename renamed exercises in persisted data
   if (s.baselines) {
     const fixed: Record<string, number> = {};
@@ -84,6 +88,8 @@ function migrateState(raw: Partial<GameState>): GameState {
     s.workouts = s.workouts.map(w => ({ ...w, sets: w.sets.map(sl => ({ ...sl, exercise: renameExercise(sl.exercise) })) }));
   }
   if (s.aspect?.exercise) s.aspect.exercise = renameExercise(s.aspect.exercise);
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   return s;
 }
 
@@ -166,10 +172,13 @@ export function useGame() {
   const joinCohort  = useCallback((c: Cohort) => { state = { ...state, cohort: c }; persist(); }, []);
   const leaveCohort = useCallback(() => { state = { ...state, cohort: null }; persist(); }, []);
   const reset       = useCallback(() => { state = DEFAULT; persist(); }, []);
+<<<<<<< HEAD
   const devOverride = useCallback((patches: Partial<GameState>) => {
     state = { ...state, ...patches };
     persist();
   }, []);
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 
   return {
     state,
@@ -182,6 +191,9 @@ export function useGame() {
     attemptNightmare,
     equipMemory,
     unequipMemory,
+<<<<<<< HEAD
     devOverride,
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   };
 }

@@ -14,6 +14,7 @@ export const EXERCISES: Record<MuscleGroup, string[]> = {
   Biceps:    ["Barbell Curl", "Dumbbell Curl", "Cable Curl", "Hammer Curl", "Preacher Curl"],
   Triceps:   ["Tricep Pushdown", "Skullcrusher", "Overhead Extension", "Dips", "Cable Kickback"],
   Legs:      ["Squat", "Leg Press", "Romanian Deadlift", "Leg Extension", "Leg Curl"],
+<<<<<<< HEAD
   Core:      ["Hanging Leg Raise", "Cable Crunch", "Plank", "Ab Wheel", "Russian Twist"],
 };
 
@@ -22,6 +23,11 @@ export const BODYWEIGHT_EXERCISES = new Set<string>([
   "Squat", "Hanging Leg Raise", "Ab Wheel", "Russian Twist",
 ]);
 
+=======
+  Core:      ["Hanging Leg Raise", "Cable Crunch", "Plank (kg)", "Ab Wheel", "Russian Twist"],
+};
+
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 export type Rank =
   | "Sleeper" | "Dormant" | "Awakened" | "Ascended"
   | "Transcended" | "Supreme" | "Sacred" | "Divine";
@@ -260,7 +266,11 @@ export const EXERCISE_ASPECTS: Record<string, AspectTemplate> = {
   "Leg Curl":               { name: "Hamstring Hunter",    kind: "pct",    baseBonus: 10, flavor: "Leg curls hunt from ambush." },
   "Hanging Leg Raise":      { name: "Pendulum Will",       kind: "pct",    baseBonus: 10, flavor: "Hanging leg raises swing as pendulum will." },
   "Cable Crunch":           { name: "Iron Sanctum",        kind: "pct",    baseBonus: 12, flavor: "Cable crunches enshrine an iron sanctum." },
+<<<<<<< HEAD
   "Plank":                  { name: "Stone Diaphragm",     kind: "special",baseBonus: 25, flavor: "Loaded planks reduce failed-Nightmare shard loss by {bonus}%." },
+=======
+  "Plank (kg)":             { name: "Stone Diaphragm",     kind: "special",baseBonus: 25, flavor: "Loaded planks reduce failed-Nightmare shard loss by {bonus}%." },
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   "Ab Wheel":               { name: "Wheelturner",         kind: "pct",    baseBonus: 10, flavor: "Ab wheel turns the wheel of the world." },
   "Russian Twist":          { name: "Twin Edge",           kind: "pct",    baseBonus: 9,  flavor: "Russian twists cut on both sides." },
 };

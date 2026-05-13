@@ -9,6 +9,7 @@
       "Bash(pandoc \"C:\\\\Users\\\\2stev\\\\Downloads\\\\SHADOW SLAVE WORKOUT GAME.docx\" -o - --to=plain)",
       "Bash(npx tsc *)",
       "Bash(node_modules/.bin/tsc --noEmit)",
+<<<<<<< HEAD
       "Bash(ls \"C:\\\\Users\\\\2stev\\\\Downloads\\\\your-app-builder-69-main\\\\your-app-builder-69-main\\\\\")",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\2stev\\\\Documents\\\\SS App\\\\G hub\\\\SS-Fitness-main\\\\SS-Fitness-main\" -Recurse -Force)",
       "Bash(Select-Object -First 50)",
@@ -17,6 +18,9 @@
       "Bash(ls /tmp/*.png /tmp/*.jpg /tmp/*.jpeg /tmp/*.webp 2>/dev/null | head -20; ls ~/Downloads/*.png ~/Downloads/*.jpg 2>/dev/null | head -5)",
       "Bash(cp \"//wsl.localhost/Ubuntu/tmp/e2e2f7c9-4630-4c8c-82dd-895494f949c6.png\" . 2>/dev/null && echo \"ok\" || echo \"fail\")",
       "PowerShell(Rename-Item \"C:\\\\Users\\\\2stev\\\\Documents\\\\SS App\\\\G hub\\\\SS-Fitness-main\\\\SS-Fitness-main\\\\public\\\\nightmare-spell.png.png\" \"nightmare-spell.png\")"
+=======
+      "Bash(ls \"C:\\\\Users\\\\2stev\\\\Downloads\\\\your-app-builder-69-main\\\\your-app-builder-69-main\\\\\")"
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     ]
   }
 }

@@ -2,7 +2,11 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useGame } from "@/lib/store";
 import {
+<<<<<<< HEAD
   MUSCLE_GROUPS, EXERCISES, BODYWEIGHT_EXERCISES, judgeFirstNightmare, computeRank, TRUE_NAMES,
+=======
+  MUSCLE_GROUPS, EXERCISES, judgeFirstNightmare, computeRank, TRUE_NAMES,
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   computeBonuses, calcNMPenalty, strongestMuscleFromBaselines,
   type SetLog, type MuscleGroup, type TrueName,
 } from "@/lib/game";
@@ -13,7 +17,11 @@ export const Route = createFileRoute("/nightmare")({
   head: () => ({ meta: [{ title: "Nightmare — Shadow Slave" }] }),
 });
 
+<<<<<<< HEAD
 type Entry = { exercise: string; weight: string; reps: string; addWeight: boolean; extraWeight: string };
+=======
+type Entry = { exercise: string; weight: string; reps: string };
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 
 function Nightmare() {
   const navigate = useNavigate();
@@ -25,7 +33,11 @@ function Nightmare() {
   const [entries, setEntries] = useState<Record<MuscleGroup, Entry>>(() =>
     Object.fromEntries(MUSCLE_GROUPS.map(m => {
       const prior = baseSets.find(s => s.muscle === m);
+<<<<<<< HEAD
       return [m, { exercise: prior?.exercise ?? EXERCISES[m][0], weight: "", reps: "", addWeight: false, extraWeight: "" }];
+=======
+      return [m, { exercise: prior?.exercise ?? EXERCISES[m][0], weight: "", reps: "" }];
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     })) as Record<MuscleGroup, Entry>
   );
   const [firstResult, setFirstResult] = useState<ReturnType<typeof judgeFirstNightmare> | null>(null);
@@ -36,11 +48,15 @@ function Nightmare() {
     trueName?: TrueName;
   } | null>(null);
 
+<<<<<<< HEAD
   const bodyWeight = state.profile?.weight ?? 70;
   const allDone = MUSCLE_GROUPS.every(m => {
     const isBW = BODYWEIGHT_EXERCISES.has(entries[m].exercise);
     return isBW ? !!entries[m].reps : (!!entries[m].weight && !!entries[m].reps);
   });
+=======
+  const allDone = MUSCLE_GROUPS.every(m => entries[m].weight && entries[m].reps);
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 
   // Compute bonus context for subsequent NM penalty calc
   const equippedMemories = state.memories.filter(m => state.equippedMemoryIds.includes(m.id));
@@ -49,6 +65,7 @@ function Nightmare() {
   const ctx = computeBonuses(state.flaw ?? null, state.trueName ?? null, memoryEffects, strongest);
 
   function update(m: MuscleGroup, patch: Partial<Entry>) {
+<<<<<<< HEAD
     setEntries(prev => {
       const next = { ...prev[m], ...patch };
       if ("exercise" in patch) {
@@ -70,6 +87,18 @@ function Nightmare() {
         reps: Number(entries[m].reps),
       };
     });
+=======
+    setEntries(prev => ({ ...prev, [m]: { ...prev[m], ...patch } }));
+  }
+
+  function judge() {
+    const sets: SetLog[] = MUSCLE_GROUPS.map(m => ({
+      muscle: m,
+      exercise: entries[m].exercise,
+      weight: Number(entries[m].weight),
+      reps: Number(entries[m].reps),
+    }));
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 
     if (isFirst) {
       const r = judgeFirstNightmare(sets, state.profile?.name);
@@ -212,10 +241,13 @@ function Nightmare() {
         {MUSCLE_GROUPS.map(m => {
           const prior = baseSets.find(s => s.muscle === m);
           const firstVol = prior ? prior.weight * prior.reps : null;
+<<<<<<< HEAD
           const isBW = BODYWEIGHT_EXERCISES.has(entries[m].exercise);
           const effectiveW = isBW
             ? bodyWeight + Number(entries[m].extraWeight || 0)
             : Number(entries[m].weight);
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
           return (
             <div key={m} className="bg-card border-rune rounded-2xl p-4 shadow-card">
               <div className="flex items-center justify-between mb-3">
@@ -233,6 +265,7 @@ function Nightmare() {
               >
                 {EXERCISES[m].map(ex => <option key={ex} value={ex}>{ex}</option>)}
               </select>
+<<<<<<< HEAD
               {isBW ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -287,6 +320,28 @@ function Nightmare() {
                 <div className="mt-2 text-[10px] text-muted-foreground">
                   {(() => {
                     const currentVol = effectiveW * Number(entries[m].reps);
+=======
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  placeholder="Weight (kg)"
+                  value={entries[m].weight}
+                  onChange={e => update(m, { weight: e.target.value })}
+                  className="bg-input border border-border rounded-lg px-3 py-2 text-sm"
+                />
+                <input
+                  type="number"
+                  placeholder="Reps"
+                  value={entries[m].reps}
+                  onChange={e => update(m, { reps: e.target.value })}
+                  className="bg-input border border-border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+              {prior && entries[m].weight && entries[m].reps && firstVol !== null && (
+                <div className="mt-2 text-[10px] text-muted-foreground">
+                  {(() => {
+                    const currentVol = Number(entries[m].weight) * Number(entries[m].reps);
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
                     const imp = ((currentVol - firstVol) / firstVol * 100).toFixed(1);
                     const ok = currentVol >= firstVol * (1 + ctx.nmThreshold);
                     return (
@@ -305,7 +360,11 @@ function Nightmare() {
       <button
         onClick={judge}
         disabled={!allDone}
+<<<<<<< HEAD
         className="w-full bg-spell text-primary-foreground font-display tracking-widest py-4 rounded-2xl shadow-spell mt-6 disabled:opacity-40 disabled:cursor-not-allowed pulse-nightmare"
+=======
+        className="w-full bg-spell text-primary-foreground font-display tracking-widest py-4 rounded-2xl shadow-spell mt-6 disabled:opacity-40 disabled:cursor-not-allowed pulse-spell"
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
       >
         {isFirst ? "Submit to the Spell" : "Challenge the Nightmare"}
       </button>

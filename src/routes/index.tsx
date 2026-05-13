@@ -15,6 +15,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+<<<<<<< HEAD
 // Deterministic shimmer particles for the welcome/landing screen
 const LANDING_PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   left:     ((i * 37 + 11) % 94) + 3,
@@ -24,6 +25,8 @@ const LANDING_PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   size:     1.5 + ((i * 0.23) % 2.5),
 }));
 
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 function Index() {
   const navigate = useNavigate();
   const { state } = useGame();
@@ -31,6 +34,7 @@ function Index() {
   if (!state.profile) return <Landing onStart={() => navigate({ to: "/onboarding" })} />;
   if (!state.aspect)  return <PreNightmareGate onEnter={() => navigate({ to: "/nightmare" })} name={state.profile.name} />;
 
+<<<<<<< HEAD
   const core     = currentCoreInfo(state.totalShards);
   const mult     = currentMultiplier(state.totalShards);
   const rank     = computeRank(state.nightmaresPassed, state.workouts.length);
@@ -40,22 +44,45 @@ function Index() {
 
   // Nightmare unlock
   const nextNM       = state.nightmaresPassed + 1;
+=======
+  const core = currentCoreInfo(state.totalShards);
+  const mult = currentMultiplier(state.totalShards);
+  const rank = computeRank(state.nightmaresPassed, state.workouts.length);
+  const nextRank = computeRank(state.nightmaresPassed + 1, state.workouts.length);
+  const fillPct = Math.min(100, (core.filled / core.cost) * 100);
+  const nextCoreName = CORES[Math.min(core.completed + 1, CORES.length - 1)]?.name ?? "Titan";
+
+  // Nightmare unlock
+  const nextNM = state.nightmaresPassed + 1;
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   const visitsNeeded = NIGHTMARE_UNLOCK_AT[nextNM] ?? 9999;
   const nightmareUnlocked = state.workouts.length >= visitsNeeded;
 
   // PRs this week
   const weekAgo = Date.now() - 7 * 86400000;
+<<<<<<< HEAD
   const recent  = state.workouts.filter(w => w.date >= weekAgo);
+=======
+  const recent = state.workouts.filter(w => w.date >= weekAgo);
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   const prCount = recent.reduce((sum, w) => {
     return sum + w.sets.filter(s => (state.baselines[s.exercise] ?? 0) <= s.weight).length;
   }, 0);
 
+<<<<<<< HEAD
+=======
+  // Equipped memories count for display
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   const equippedCount = state.equippedMemoryIds.length;
 
   return (
     <div className="min-h-screen pb-24 max-w-md mx-auto">
       <header className="px-5 pt-6 pb-3">
+<<<<<<< HEAD
         <h1 className="font-display text-lg text-gold tracking-[0.2em] text-glow">DREAM REALM</h1>
+=======
+        <h1 className="font-display text-lg text-gold tracking-[0.2em]">DREAM REALM</h1>
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
         <p className="text-xs text-muted-foreground tracking-wider mt-1">
           Day {state.workouts.length + 1} of your awakening
         </p>
@@ -68,7 +95,11 @@ function Index() {
             ⚔
           </div>
           <div className="flex-1">
+<<<<<<< HEAD
             <p className="font-display text-gold tracking-[0.15em] text-glow">{rank.toUpperCase()}</p>
+=======
+            <p className="font-display text-gold tracking-[0.15em]">{rank.toUpperCase()}</p>
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
             <p className="text-[11px] text-muted-foreground mt-0.5">
               {state.nightmaresPassed} Nightmare{state.nightmaresPassed === 1 ? "" : "s"} conquered
             </p>
@@ -120,7 +151,11 @@ function Index() {
           <p className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase mb-2">Aspects & Flaws</p>
           <div className="bg-surface-2 p-3.5 border-l-2 border-l-gold mb-2.5">
             <p className="text-[10px] tracking-[0.15em] text-gold uppercase mb-1.5">
+<<<<<<< HEAD
               Aspect · {state.aspect.name} · {state.aspect.rank}
+=======
+              Aspect · {state.aspect.name}
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
             </p>
             <p className="font-display text-sm">{state.aspect.description}</p>
             <p className="text-[10px] text-muted-foreground mt-1">Triggered by: {state.aspect.exercise}</p>
@@ -194,7 +229,11 @@ function ordinal(n: number) {
 function Stat({ val, label, accent }: { val: number | string; label: string; accent?: boolean }) {
   return (
     <div className="bg-surface-2 border-rune p-3">
+<<<<<<< HEAD
       <p className={`font-display text-xl ${accent ? "text-gold text-glow" : ""}`}>{val}</p>
+=======
+      <p className={`font-display text-xl ${accent ? "text-gold" : ""}`}>{val}</p>
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
       <p className="text-[10px] text-muted-foreground mt-1 tracking-wide">{label}</p>
     </div>
   );
@@ -202,6 +241,7 @@ function Stat({ val, label, accent }: { val: number | string; label: string; acc
 
 function Landing({ onStart }: { onStart: () => void }) {
   return (
+<<<<<<< HEAD
     <div className="fixed inset-0 flex flex-col items-center justify-end text-center overflow-hidden">
 
       {/* Image fills the entire viewport */}
@@ -250,6 +290,24 @@ function Landing({ onStart }: { onStart: () => void }) {
           ENTER THE NIGHTMARE
         </button>
       </div>
+=======
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center max-w-md mx-auto">
+      <div className="w-32 h-32 rounded-full border border-gold/40 flex items-center justify-center mb-8 pulse-spell">
+        <div className="w-24 h-24 rounded-full border border-gold/25 flex items-center justify-center text-4xl">
+          🌑
+        </div>
+      </div>
+      <h1 className="font-display text-2xl text-gold tracking-[0.3em] mb-3">NIGHTMARE SPELL</h1>
+      <p className="text-muted-foreground text-sm mb-10 leading-relaxed max-w-xs">
+        You have been chosen, Aspirant. Your fate is written in shadow and steel. Will you answer the call?
+      </p>
+      <button
+        onClick={onStart}
+        className="w-full max-w-xs bg-gradient-to-br from-gold-dim to-gold text-background font-display tracking-[0.2em] text-sm py-3.5"
+      >
+        ENTER THE NIGHTMARE
+      </button>
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     </div>
   );
 }
@@ -258,7 +316,11 @@ function PreNightmareGate({ onEnter, name }: { onEnter: () => void; name: string
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center max-w-md mx-auto">
       <p className="text-[10px] uppercase tracking-[0.4em] text-gold mb-3">First Nightmare</p>
+<<<<<<< HEAD
       <h1 className="font-display text-2xl text-gold tracking-[0.15em] mb-4 text-glow-strong">Welcome, {name}</h1>
+=======
+      <h1 className="font-display text-2xl text-gold tracking-[0.15em] mb-4">Welcome, {name}</h1>
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
       <p className="text-muted-foreground text-sm mb-10 leading-relaxed">
         Do you wish to challenge the First Nightmare? You must perform one set of one exercise for each muscle group.
         Choose well — your Aspect and Flaw will be forged from this trial.

@@ -2,7 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useGame, type Workout } from "@/lib/store";
 import {
+<<<<<<< HEAD
   MUSCLE_GROUPS, EXERCISES, BODYWEIGHT_EXERCISES, calcShards, currentMultiplier, currentCoreInfo,
+=======
+  MUSCLE_GROUPS, EXERCISES, calcShards, currentMultiplier, currentCoreInfo,
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   computeBonuses, strongestMuscleFromBaselines,
   type SetLog, type MuscleGroup,
 } from "@/lib/game";
@@ -31,15 +35,21 @@ function DreamRealm() {
   const [day, setDay] = useState(DAYS[0]);
   const [muscle, setMuscle] = useState<MuscleGroup>("Back");
   const [exercise, setExercise] = useState(EXERCISES["Back"][0]);
+<<<<<<< HEAD
   const bodyWeight = state.profile?.weight ?? 70;
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [addWeight, setAddWeight] = useState(false);
   const [extraWeight, setExtraWeight] = useState("");
+=======
+  const [weight, setWeight] = useState("");
+  const [reps, setReps] = useState("");
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   const [showAdd, setShowAdd] = useState(false);
   const [sets, setSets] = useState<Array<SetLog & { shards: number; isPR: boolean }>>([]);
   const [pendingDrops, setPendingDrops] = useState<Memory[]>([]);
   const [drops, setDrops] = useState<Memory[] | null>(null);
+<<<<<<< HEAD
   const [floaters, setFloaters] = useState<Array<{ id: number; val: number }>>([]);
 
   function addSet() {
@@ -50,6 +60,15 @@ function DreamRealm() {
     const set: SetLog = { exercise, muscle, weight: effectiveWeight, reps: r };
     const baseline = state.baselines[exercise] ?? effectiveWeight;
     const isPR = effectiveWeight > baseline;
+=======
+
+  function addSet() {
+    const w = Number(weight), r = Number(reps);
+    if (!w || !r) return;
+    const set: SetLog = { exercise, muscle, weight: w, reps: r };
+    const baseline = state.baselines[exercise] ?? w;
+    const isPR = w > baseline;
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     const shards = calcShards(set, baseline, mult, ctx, state.aspect, isPR);
 
     // 15% chance to drop a memory on each PR set
@@ -59,10 +78,14 @@ function DreamRealm() {
     }
 
     setSets(prev => [...prev, { ...set, shards, isPR }]);
+<<<<<<< HEAD
     const floatId = Date.now();
     setFloaters(prev => [...prev, { id: floatId, val: shards }]);
     setTimeout(() => setFloaters(prev => prev.filter(f => f.id !== floatId)), 1100);
     setWeight(""); setReps(""); setExtraWeight(""); setAddWeight(false);
+=======
+    setWeight(""); setReps("");
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     setShowAdd(false);
   }
 
@@ -118,6 +141,7 @@ function DreamRealm() {
       <div className="px-4 space-y-4">
         {/* Shards earned */}
         <div
+<<<<<<< HEAD
           className="border-rune p-4 flex items-center justify-between relative"
           style={{ background: "linear-gradient(135deg, rgba(123,94,167,0.15), rgba(201,168,76,0.06))" }}
         >
@@ -129,6 +153,13 @@ function DreamRealm() {
           ))}
           <div>
             <p className="font-display text-2xl text-gold text-glow">+{totalShards} ✦</p>
+=======
+          className="border-rune p-4 flex items-center justify-between"
+          style={{ background: "linear-gradient(135deg, rgba(123,94,167,0.15), rgba(201,168,76,0.06))" }}
+        >
+          <div>
+            <p className="font-display text-2xl text-gold">+{totalShards} ✦</p>
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
             <p className="text-[11px] text-muted-foreground mt-0.5">Shards earned · {prCount} PR{prCount === 1 ? "" : "s"}</p>
           </div>
           <div className="text-right">
@@ -207,7 +238,10 @@ function DreamRealm() {
                     const m = e.target.value as MuscleGroup;
                     setMuscle(m);
                     setExercise(EXERCISES[m][0]);
+<<<<<<< HEAD
                     setWeight(""); setAddWeight(false); setExtraWeight("");
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
                   }}
                   className="bg-surface-3 border-rune px-3 py-2 text-sm"
                 >
@@ -215,15 +249,20 @@ function DreamRealm() {
                 </select>
                 <select
                   value={exercise}
+<<<<<<< HEAD
                   onChange={e => {
                     setExercise(e.target.value);
                     setWeight(""); setAddWeight(false); setExtraWeight("");
                   }}
+=======
+                  onChange={e => setExercise(e.target.value)}
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
                   className="bg-surface-3 border-rune px-3 py-2 text-sm"
                 >
                   {EXERCISES[muscle].map(ex => <option key={ex}>{ex}</option>)}
                 </select>
               </div>
+<<<<<<< HEAD
               {BODYWEIGHT_EXERCISES.has(exercise) ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -287,6 +326,33 @@ function DreamRealm() {
                     const isPR = effectiveWeight > baseline;
                     const preview = calcShards(
                       { exercise, muscle, weight: effectiveWeight, reps: Number(reps) },
+=======
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="Weight (kg)"
+                  value={weight}
+                  onChange={e => setWeight(e.target.value)}
+                  className="bg-surface-3 border-rune px-3 py-2 text-sm"
+                />
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Reps"
+                  value={reps}
+                  onChange={e => setReps(e.target.value)}
+                  className="bg-surface-3 border-rune px-3 py-2 text-sm"
+                />
+              </div>
+              {weight && reps && (
+                <div className="text-[10px] text-muted-foreground px-1">
+                  {(() => {
+                    const baseline = state.baselines[exercise] ?? Number(weight);
+                    const isPR = Number(weight) > baseline;
+                    const preview = calcShards(
+                      { exercise, muscle, weight: Number(weight), reps: Number(reps) },
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
                       baseline, mult, ctx, state.aspect, isPR
                     );
                     return <span>Preview: <span className="text-gold">+{preview} ✦</span>{isPR ? " · PR!" : ""}</span>;

@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 import { useState } from "react";
+=======
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+<<<<<<< HEAD
   useLocation,
   HeadContent,
   Scripts,
@@ -245,6 +249,14 @@ function DevMenu() {
   );
 }
 
+=======
+  HeadContent,
+  Scripts,
+} from "@tanstack/react-router";
+
+import appCss from "../styles.css?url";
+
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -352,12 +364,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+<<<<<<< HEAD
       <OrbBackground />
       {/* z-index: 1 keeps all page content above the orb layer (z: 0) */}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Outlet />
       </div>
       <DevMenu />
+=======
+      <Outlet />
+>>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     </QueryClientProvider>
   );
 }

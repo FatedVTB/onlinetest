@@ -24,10 +24,9 @@ import {
 } from "@/lib/social";
 import { BottomNav } from "@/components/BottomNav";
 
-// Only show profiles for accounts that still exist — deleted accounts are filtered out.
+// Return all known profiles — in multi-device mode everyone's profile arrives via Supabase.
 function getLiveProfiles(): PublicProfile[] {
-  const registered = new Set(listAccounts());
-  return getAllPublicProfiles().filter(p => registered.has(p.username));
+  return getAllPublicProfiles();
 }
 
 export const Route = createFileRoute("/friends")({
@@ -135,9 +134,8 @@ function FriendsTab({ currentUser }: { currentUser: string }) {
   const refresh = () => forceUpdate(n => n + 1);
   useSyncRefresh(); // re-render when Supabase sync brings in new data
 
-  const registered     = new Set(listAccounts());
-  // Only show friends whose accounts still exist
-  const friendNames    = getFriendUsernames(currentUser).filter(u => registered.has(u));
+  // Show all friends — accounts on other devices arrive via Supabase sync
+  const friendNames    = getFriendUsernames(currentUser);
   const friendsWithProfile = friendNames.map(u => ({
     username: u,
     profile: getPublicProfile(u),
@@ -203,9 +201,10 @@ function FindFriendsTab({ currentUser }: { currentUser: string }) {
   const refresh = () => forceUpdate(n => n + 1);
   useSyncRefresh(); // re-render when Supabase sync brings in new data
 
-  const allAccounts   = listAccounts().filter(u => u !== currentUser);
-  const allProfiles   = getLiveProfiles();
+  // Use all known profiles as the searchable list — not just local accounts
+  const allProfiles   = getLiveProfiles().filter(p => p.username !== currentUser);
   const profileMap    = Object.fromEntries(allProfiles.map(p => [p.username, p]));
+  const allAccounts   = allProfiles.map(p => p.username);
   const outgoing      = getOutgoingRequests(currentUser);
   const outgoingSet   = new Set(outgoing.map(r => r.to));
   const outgoingIdMap = Object.fromEntries(outgoing.map(r => [r.to, r.id]));

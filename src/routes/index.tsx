@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useSyncRefresh } from "@/lib/supabase";
 import { Settings, Users } from "lucide-react";
 import { useGame } from "@/lib/store";
 import { getCurrentUser } from "@/lib/auth";
@@ -32,6 +33,7 @@ const LANDING_PARTICLES = Array.from({ length: 28 }, (_, i) => ({
 function Index() {
   const navigate = useNavigate();
   const { state, setPlatform, setTutorialSeen, setNightmarePostponed } = useGame();
+  useSyncRefresh(); // re-render when Supabase sync updates the pending invite badge
 
   if (!state.profile) {
     // ── New-user intro flow (no profile yet) ──────────────────────────────

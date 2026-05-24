@@ -17,6 +17,7 @@ import {
   type Rank, type Aspect, type Flaw, type SetLog,
 } from "@/lib/game";
 import { rollGuaranteedMemoryDrop } from "@/lib/memories";
+import { syncFromSupabase, initialPushAllToSupabase } from "@/lib/supabase";
 
 import appCss from "../styles.css?url";
 
@@ -416,6 +417,26 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Pulls fresh social data from Supabase on mount and every 5 seconds.
+ * This is what makes profiles, friend requests, cohorts, and expedition/nightmare sessions
+ * visible across different devices and users in real time.
+ * Renders nothing — pure side-effect component.
+ */
+function SyncComponent() {
+  useEffect(() => {
+    // Upload any existing local data first so other users can see it immediately.
+    // This handles the case where someone was using the app before Supabase was added.
+    initialPushAllToSupabase();
+    // Then pull down everyone else's data right away.
+    syncFromSupabase();
+    // Keep polling so invites, session updates, and profile changes appear in real time.
+    const interval = setInterval(syncFromSupabase, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  return null;
+}
+
 // Registers the service worker once on mount — enables offline caching and PWA install prompts.
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -456,6 +477,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SyncComponent />
       <ServiceWorkerRegistrar />
       <PlatformApplier />
       <OrbBackground />

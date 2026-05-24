@@ -4,6 +4,7 @@
 
 import { RANKS, CORES, type Rank } from "./game";
 import type { Aspect, Flaw, TrueName, SetLog } from "./game";
+import { pushKeyToSupabase, SHARED_KEYS } from "./supabase";
 
 // ─── Real-player social keys ──────────────────────────────────────────────────
 const PUBLIC_PROFILES_KEY = "nma-public-profiles";
@@ -67,6 +68,8 @@ function loadJSON<T>(key: string, def: T): T {
 }
 function saveJSON(key: string, val: unknown): void {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+  // Mirror shared social data to Supabase so other devices/users see the update
+  if (SHARED_KEYS.has(key)) pushKeyToSupabase(key);
 }
 
 // ─── Public profiles ──────────────────────────────────────────────────────────

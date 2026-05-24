@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useSyncRefresh } from "@/lib/supabase";
 import { useGame } from "@/lib/store";
 import { NIGHTMARE_UNLOCK_AT } from "@/lib/game";
 import { BottomNav } from "@/components/BottomNav";
@@ -27,6 +28,7 @@ function NightmareHub() {
   const { state } = useGame();
   const currentUser = getCurrentUser();
   const [, forceUpdate] = useState(0);
+  useSyncRefresh(); // re-render when Supabase sync brings in new invites
 
   const pendingNmInvites  = currentUser ? getPendingCohortNightmareInvites(currentUser) : [];
   const activeNmSession   = currentUser ? getActiveCohortNightmareSession(currentUser) : null;

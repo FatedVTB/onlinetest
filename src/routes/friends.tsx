@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback, useEffect } from "react";
+import { useSyncRefresh } from "@/lib/supabase";
 import { Search, Users, Clock, Swords, ChevronDown, ChevronUp } from "lucide-react";
 import { getCurrentUser, listAccounts } from "@/lib/auth";
 import { useGame } from "@/lib/store";
@@ -132,6 +133,7 @@ function FriendsTab({ currentUser }: { currentUser: string }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [, forceUpdate] = useState(0);
   const refresh = () => forceUpdate(n => n + 1);
+  useSyncRefresh(); // re-render when Supabase sync brings in new data
 
   const registered     = new Set(listAccounts());
   // Only show friends whose accounts still exist
@@ -199,6 +201,7 @@ function FindFriendsTab({ currentUser }: { currentUser: string }) {
   const [sent, setSent]   = useState<Record<string, string>>({});
   const [, forceUpdate]   = useState(0);
   const refresh = () => forceUpdate(n => n + 1);
+  useSyncRefresh(); // re-render when Supabase sync brings in new data
 
   const allAccounts   = listAccounts().filter(u => u !== currentUser);
   const allProfiles   = getLiveProfiles();
@@ -293,6 +296,7 @@ function FindFriendsTab({ currentUser }: { currentUser: string }) {
 function PendingTab({ currentUser }: { currentUser: string }) {
   const [, forceUpdate] = useState(0);
   const refresh = () => forceUpdate(n => n + 1);
+  useSyncRefresh(); // re-render when Supabase sync brings in new data
 
   const incoming        = getIncomingRequests(currentUser);
   const outgoing        = getOutgoingRequests(currentUser);
@@ -413,6 +417,7 @@ function CohortTab({ currentUser }: { currentUser: string }) {
   const navigate = useNavigate();
   const [, forceUpdate] = useState(0);
   const refresh = () => forceUpdate(n => n + 1);
+  useSyncRefresh(); // re-render when Supabase sync brings in new data
 
   const myCohort   = getCohortByMember(currentUser);
   const myFriends  = getFriendUsernames(currentUser);
@@ -1027,6 +1032,7 @@ function FriendsPage() {
   const currentUser = getCurrentUser();
   const [tab, setTab] = useState<Tab>("friends");
   const [, forceUpdate] = useState(0);
+  useSyncRefresh(); // re-render when Supabase sync brings in new data (for pending badge)
 
   if (!currentUser || currentUser === "__guest__") {
     return (

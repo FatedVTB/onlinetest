@@ -2,11 +2,14 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Moon, Swords, Eye, User } from "lucide-react";
 
 const TABS = [
-  { to: "/", label: "Realm", icon: Moon },
-  { to: "/dreamrealm", label: "Train", icon: Swords },
-  { to: "/leaderboard", label: "Ranks", icon: Eye },
+  { to: "/", label: "Home", icon: Moon },
+  { to: "/dreamrealm", label: "Dreamrealm", icon: Swords },
+  { to: "/leaderboard", label: "Leaderboard", icon: Eye },
   { to: "/soul", label: "Soul", icon: User },
 ] as const;
+
+// Paths that belong under the Dreamrealm tab
+const DREAMREALM_PATHS = ["/dreamrealm", "/expedition", "/nightmarehub", "/nightmare"];
 
 export function BottomNav() {
   const { pathname } = useLocation();
@@ -15,7 +18,12 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-rune">
       <div className="max-w-md mx-auto flex justify-around px-2 pt-2 pb-3">
         {TABS.map(({ to, label, icon: Icon }) => {
-          const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
+          const active =
+            to === "/"
+              ? pathname === "/"
+              : to === "/dreamrealm"
+              ? DREAMREALM_PATHS.some(p => pathname === p || pathname.startsWith(p + "/"))
+              : pathname.startsWith(to);
           return (
             <Link
               key={to}

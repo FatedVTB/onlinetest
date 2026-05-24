@@ -1,0 +1,25 @@
+{
+  "name": "Nightmare Ascension",
+  "short_name": "NMA",
+  "description": "Train as an Aspirant of Nightmare Ascension. Log workouts, conquer Nightmares, and ascend through the ranks.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/nightmare-spell.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/nightmare-spell.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

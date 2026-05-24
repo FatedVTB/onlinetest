@@ -1,19 +1,17 @@
-<<<<<<< HEAD
-import { useState } from "react";
-=======
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
-<<<<<<< HEAD
   useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useGame } from "@/lib/store";
+import { getCurrentUser } from "@/lib/auth";
+import { AuthScreen } from "@/components/AuthScreen";
 import {
   currentCoreInfo, computeRank, RANKS, CORES, EXERCISES, MUSCLE_GROUPS,
   type Rank, type Aspect, type Flaw, type SetLog,
@@ -23,14 +21,32 @@ import { rollGuaranteedMemoryDrop } from "@/lib/memories";
 import appCss from "../styles.css?url";
 
 // Rainbow arc: orbs spread across the top half, peaking at the centre like a rainbow.
-// x goes 5 % → 95 %, y follows an inverted parabola so the middle orb sits highest.
+// Special cases for 2 and 3 orbs to keep them clustered near the top rather than
+// spread wide to the sides. All positions verified non-overlapping at max orb size.
 function getArcPositions(count: number): Array<{ x: number; y: number }> {
   if (count === 1) return [{ x: 50, y: 14 }];
+
+  // 2 orbs (Monster): sit close to the top-centre — like the inner pair of a 4-orb arc
+  if (count === 2) return [{ x: 35, y: 14 }, { x: 65, y: 14 }];
+
+  // 3 orbs (Demon): tighter arc, x spans 22–78 % and shallower parabola so the outer
+  // orbs are noticeably closer to the peak rather than drifting toward the sides
+  if (count === 3) {
+    return Array.from({ length: 3 }, (_, i) => {
+      const t = i / 2;
+      const x = 22 + t * 56;           // 22 % → 78 % (tighter than default 5–95 %)
+      const u = 2 * t - 1;
+      const y = 12 + 18 * u * u;       // peak 12 %, edges ~30 % (shallower arc)
+      return { x, y };
+    });
+  }
+
+  // 4–7 orbs: standard full-width arc
   return Array.from({ length: count }, (_, i) => {
-    const t = i / (count - 1);          // 0 → 1 left to right
-    const x = 5 + t * 90;              // 5 % → 95 % horizontal
-    const u = 2 * t - 1;               // −1 → 1  (0 at centre)
-    const y = 12 + 26 * u * u;         // 12 % at peak, ~38 % at edges
+    const t = i / (count - 1);         // 0 → 1 left to right
+    const x = 5 + t * 90;             // 5 % → 95 % horizontal
+    const u = 2 * t - 1;              // −1 → 1  (0 at centre)
+    const y = 12 + 26 * u * u;        // 12 % at peak, ~38 % at edges
     return { x, y };
   });
 }
@@ -42,6 +58,8 @@ function OrbBackground() {
   // Orbs are only visible on the Soul page
   if (pathname !== "/soul") return null;
 
+  const isMobile  = state.platform === "mobile";
+
   const core      = currentCoreInfo(state.totalShards);
   const rank      = computeRank(state.nightmaresPassed, state.workouts.length);
 
@@ -49,13 +67,14 @@ function OrbBackground() {
   const rankIndex = Math.max(0, RANKS.indexOf(rank));
   const positions = getArcPositions(orbCount);
 
-  // Scale everything linearly from Sleeper (0) → Divine (7)
+  // On mobile, keep the orbs visible but much smaller so they don't
+  // dominate the narrow screen or overlap the central label column.
   const t          = rankIndex / 7;
-  const diameter   = 55  + t * 145;   // 55 px → 200 px
-  const innerOp    = 0.18 + t * 0.70; // 0.18 → 0.88
-  const midOp      = 0.07 + t * 0.32; // 0.07 → 0.39
-  const outerOp    = 0.03 + t * 0.15; // 0.03 → 0.18
-  const glowRadius = 50  + t * 140;   // 50 px → 190 px
+  const diameter   = isMobile ? (22 + t * 44)  : (55  + t * 145);  // mobile: 22–66 px, desktop: 55–200 px
+  const innerOp    = 0.18 + t * 0.70;
+  const midOp      = 0.07 + t * 0.32;
+  const outerOp    = 0.03 + t * 0.15;
+  const glowRadius = isMobile ? (18 + t * 42)  : (50  + t * 140);  // mobile: 18–60 px, desktop: 50–190 px
 
   return (
     <div
@@ -129,6 +148,7 @@ const DEV_FIRST_NM_SETS: SetLog[] = MUSCLE_GROUPS.map(muscle => ({
 function DevMenu() {
   const { state, devOverride } = useGame();
   const [open, setOpen] = useState(false);
+  const [expInput, setExpInput] = useState("");
 
   if (state.profile?.name !== "Dev") return null;
 
@@ -141,9 +161,9 @@ function DevMenu() {
     const patches: Parameters<typeof devOverride>[0] = { nightmaresPassed: nm };
 
     // Awakened requires ≥ 10 workouts — pad with empty dev entries
-    if (rank === "Awakened" && state.workouts.length < 10) {
+    if (rank === "Awakened" && state.workouts.length < 5) {
       patches.workouts = [
-        ...Array.from({ length: 10 - state.workouts.length }, (_, i) => ({
+        ...Array.from({ length: 5 - state.workouts.length }, (_, i) => ({
           id: `dev-pad-${i}`,
           date: Date.now() - i * 86400000,
           day: "Full Body",
@@ -166,6 +186,21 @@ function DevMenu() {
 
   function applyCore(name: string) {
     devOverride({ totalShards: CORE_SHARDS[name] ?? 0 });
+  }
+
+  function setExpeditions() {
+    const n = Math.max(0, parseInt(expInput, 10));
+    if (isNaN(n)) return;
+    const real = state.workouts.filter(w => !w.id.startsWith("dev-"));
+    const fakes = Array.from({ length: Math.max(0, n - real.length) }, (_, i) => ({
+      id: `dev-${i}`,
+      date: Date.now() - (real.length + i) * 86400000,
+      day: "Monday",
+      sets: [] as SetLog[],
+      shardsEarned: 0,
+    }));
+    devOverride({ workouts: [...real, ...fakes].slice(0, n) });
+    setExpInput("");
   }
 
   return (
@@ -233,6 +268,29 @@ function DevMenu() {
             </button>
           </div>
 
+          <div className="mt-3">
+            <p className="mb-1 text-[9px] uppercase tracking-wider text-muted-foreground">
+              Expeditions <span className="text-yellow-400/70">({state.workouts.length})</span>
+            </p>
+            <div className="flex gap-1.5">
+              <input
+                type="number"
+                min={0}
+                placeholder="set to…"
+                value={expInput}
+                onChange={e => setExpInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && setExpeditions()}
+                className="flex-1 border border-yellow-400/30 bg-surface-3 px-2 py-1.5 text-xs text-foreground"
+              />
+              <button
+                onClick={setExpeditions}
+                className="border border-yellow-400/30 bg-surface-3 px-2.5 py-1.5 text-xs text-yellow-400 hover:bg-yellow-400/10 transition-colors"
+              >
+                SET
+              </button>
+            </div>
+          </div>
+
           <p className="mt-3 text-[8px] leading-relaxed text-muted-foreground opacity-50">
             Core sets total shards to tier threshold. Changes are instant &amp; saved.
           </p>
@@ -249,14 +307,6 @@ function DevMenu() {
   );
 }
 
-=======
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
-
-import appCss from "../styles.css?url";
-
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -318,22 +368,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Workout Game Demo" },
-      { name: "description", content: "WIP Very Early Days Testing" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Workout Game Demo" },
-      { property: "og:description", content: "WIP Very Early Days Testing" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { title: "Nightmare Ascension" },
+      { name: "description", content: "Train as an Aspirant of Nightmare Ascension. Log workouts, conquer Nightmares, and ascend through the ranks." },
+      { name: "author", content: "NMA Devs" },
+      // PWA / installability
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "NMA" },
+      { name: "theme-color", content: "#080808" },
+      // Open Graph
+      { property: "og:title", content: "Nightmare Ascension" },
+      { property: "og:description", content: "Train as an Aspirant. Log workouts, conquer Nightmares, ascend through the ranks." },
       { property: "og:type", content: "website" },
+      // Twitter
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Workout Game Demo" },
-      { name: "twitter:description", content: "WIP Very Early Days Testing" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a101165d-e541-4b15-9ce5-517878aaaacd/id-preview-2d03f31d--77a3e429-e5b1-4549-871c-f29c0688031d.lovable.app-1778467197147.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a101165d-e541-4b15-9ce5-517878aaaacd/id-preview-2d03f31d--77a3e429-e5b1-4549-871c-f29c0688031d.lovable.app-1778467197147.png" },
+      { name: "twitter:title", content: "Nightmare Ascension" },
+      { name: "twitter:description", content: "Train as an Aspirant. Log workouts, conquer Nightmares, ascend through the ranks." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "/nightmare-spell.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Raleway:wght@300;400;500;600&display=swap" },
@@ -359,21 +416,54 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Registers the service worker once on mount — enables offline caching and PWA install prompts.
+function ServiceWorkerRegistrar() {
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        // Silently ignore — SW is a progressive enhancement, not required for the app to work.
+      });
+    }
+  }, []);
+  return null;
+}
+
+// Applies data-platform attribute to <body> so CSS and components can
+// respond to the user's chosen interface mode globally.
+function PlatformApplier() {
+  const { state } = useGame();
+  useEffect(() => {
+    const p = state.platform ?? "desktop";
+    document.body.setAttribute("data-platform", p);
+  }, [state.platform]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Auth guard — getCurrentUser() reads localStorage synchronously.
+  // login/register/logout all call window.location.reload() so the module-level
+  // store KEY is always re-derived correctly after an auth transition.
+  const user = getCurrentUser();
+  if (!user) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <AuthScreen />
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-<<<<<<< HEAD
+      <ServiceWorkerRegistrar />
+      <PlatformApplier />
       <OrbBackground />
       {/* z-index: 1 keeps all page content above the orb layer (z: 0) */}
       <div style={{ position: "relative", zIndex: 1 }}>
         <Outlet />
       </div>
       <DevMenu />
-=======
-      <Outlet />
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
     </QueryClientProvider>
   );
 }

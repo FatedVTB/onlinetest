@@ -10,10 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SoulRouteImport } from './routes/soul'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PrsRouteImport } from './routes/prs'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as NightmarehubRouteImport } from './routes/nightmarehub'
 import { Route as NightmareRouteImport } from './routes/nightmare'
 import { Route as MemoriesRouteImport } from './routes/memories'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as ExpeditionRouteImport } from './routes/expedition'
 import { Route as DreamrealmRouteImport } from './routes/dreamrealm'
 import { Route as CohortsRouteImport } from './routes/cohorts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,9 +28,24 @@ const SoulRoute = SoulRouteImport.update({
   path: '/soul',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrsRoute = PrsRouteImport.update({
+  id: '/prs',
+  path: '/prs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NightmarehubRoute = NightmarehubRouteImport.update({
+  id: '/nightmarehub',
+  path: '/nightmarehub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NightmareRoute = NightmareRouteImport.update({
@@ -41,6 +61,16 @@ const MemoriesRoute = MemoriesRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpeditionRoute = ExpeditionRouteImport.update({
+  id: '/expedition',
+  path: '/expedition',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DreamrealmRoute = DreamrealmRouteImport.update({
@@ -63,20 +93,30 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cohorts': typeof CohortsRoute
   '/dreamrealm': typeof DreamrealmRoute
+  '/expedition': typeof ExpeditionRoute
+  '/friends': typeof FriendsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/memories': typeof MemoriesRoute
   '/nightmare': typeof NightmareRoute
+  '/nightmarehub': typeof NightmarehubRoute
   '/onboarding': typeof OnboardingRoute
+  '/prs': typeof PrsRoute
+  '/settings': typeof SettingsRoute
   '/soul': typeof SoulRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cohorts': typeof CohortsRoute
   '/dreamrealm': typeof DreamrealmRoute
+  '/expedition': typeof ExpeditionRoute
+  '/friends': typeof FriendsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/memories': typeof MemoriesRoute
   '/nightmare': typeof NightmareRoute
+  '/nightmarehub': typeof NightmarehubRoute
   '/onboarding': typeof OnboardingRoute
+  '/prs': typeof PrsRoute
+  '/settings': typeof SettingsRoute
   '/soul': typeof SoulRoute
 }
 export interface FileRoutesById {
@@ -84,10 +124,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cohorts': typeof CohortsRoute
   '/dreamrealm': typeof DreamrealmRoute
+  '/expedition': typeof ExpeditionRoute
+  '/friends': typeof FriendsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/memories': typeof MemoriesRoute
   '/nightmare': typeof NightmareRoute
+  '/nightmarehub': typeof NightmarehubRoute
   '/onboarding': typeof OnboardingRoute
+  '/prs': typeof PrsRoute
+  '/settings': typeof SettingsRoute
   '/soul': typeof SoulRoute
 }
 export interface FileRouteTypes {
@@ -96,30 +141,45 @@ export interface FileRouteTypes {
     | '/'
     | '/cohorts'
     | '/dreamrealm'
+    | '/expedition'
+    | '/friends'
     | '/leaderboard'
     | '/memories'
     | '/nightmare'
+    | '/nightmarehub'
     | '/onboarding'
+    | '/prs'
+    | '/settings'
     | '/soul'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/cohorts'
     | '/dreamrealm'
+    | '/expedition'
+    | '/friends'
     | '/leaderboard'
     | '/memories'
     | '/nightmare'
+    | '/nightmarehub'
     | '/onboarding'
+    | '/prs'
+    | '/settings'
     | '/soul'
   id:
     | '__root__'
     | '/'
     | '/cohorts'
     | '/dreamrealm'
+    | '/expedition'
+    | '/friends'
     | '/leaderboard'
     | '/memories'
     | '/nightmare'
+    | '/nightmarehub'
     | '/onboarding'
+    | '/prs'
+    | '/settings'
     | '/soul'
   fileRoutesById: FileRoutesById
 }
@@ -127,10 +187,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CohortsRoute: typeof CohortsRoute
   DreamrealmRoute: typeof DreamrealmRoute
+  ExpeditionRoute: typeof ExpeditionRoute
+  FriendsRoute: typeof FriendsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   MemoriesRoute: typeof MemoriesRoute
   NightmareRoute: typeof NightmareRoute
+  NightmarehubRoute: typeof NightmarehubRoute
   OnboardingRoute: typeof OnboardingRoute
+  PrsRoute: typeof PrsRoute
+  SettingsRoute: typeof SettingsRoute
   SoulRoute: typeof SoulRoute
 }
 
@@ -143,11 +208,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SoulRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prs': {
+      id: '/prs'
+      path: '/prs'
+      fullPath: '/prs'
+      preLoaderRoute: typeof PrsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nightmarehub': {
+      id: '/nightmarehub'
+      path: '/nightmarehub'
+      fullPath: '/nightmarehub'
+      preLoaderRoute: typeof NightmarehubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nightmare': {
@@ -169,6 +255,20 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expedition': {
+      id: '/expedition'
+      path: '/expedition'
+      fullPath: '/expedition'
+      preLoaderRoute: typeof ExpeditionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dreamrealm': {
@@ -199,10 +299,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CohortsRoute: CohortsRoute,
   DreamrealmRoute: DreamrealmRoute,
+  ExpeditionRoute: ExpeditionRoute,
+  FriendsRoute: FriendsRoute,
   LeaderboardRoute: LeaderboardRoute,
   MemoriesRoute: MemoriesRoute,
   NightmareRoute: NightmareRoute,
+  NightmarehubRoute: NightmarehubRoute,
   OnboardingRoute: OnboardingRoute,
+  PrsRoute: PrsRoute,
+  SettingsRoute: SettingsRoute,
   SoulRoute: SoulRoute,
 }
 export const routeTree = rootRouteImport

@@ -45,7 +45,6 @@
 :root {
   --radius: 0.125rem;
 
-<<<<<<< HEAD
   /* Pure black base with dark purple accent */
   --background: #080808;
   --foreground: #E8E4D9;
@@ -58,25 +57,10 @@
   --card-foreground: #E8E4D9;
 
   --popover:            rgba(15, 15, 19, 0.72);
-=======
-  /* Mockup palette: dark void + gold + purple highlight */
-  --background: #0D0D0F;
-  --foreground: #E8E4D9;
-
-  --surface: #141418;
-  --surface-2: #1C1C22;
-  --surface-3: #23232C;
-
-  --card: #1C1C22;
-  --card-foreground: #E8E4D9;
-
-  --popover: #141418;
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   --popover-foreground: #E8E4D9;
 
   /* Gold is the primary accent */
   --primary: #C9A84C;
-<<<<<<< HEAD
   --primary-foreground: #080808;
   --gold: #C9A84C;
   --gold-dim: #8A6A28;
@@ -85,25 +69,11 @@
   --secondary-foreground: #E8E4D9;
 
   --muted: #14141a;
-=======
-  --primary-foreground: #0D0D0F;
-  --gold: #C9A84C;
-  --gold-dim: #8A6A28;
-
-  --secondary: #23232C;
-  --secondary-foreground: #E8E4D9;
-
-  --muted: #1C1C22;
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   --muted-foreground: #8A8680;
 
   /* Purple for cores / secondary highlight */
   --accent: #A67DD4;
-<<<<<<< HEAD
   --accent-foreground: #080808;
-=======
-  --accent-foreground: #0D0D0F;
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   --purple: #7B5EA7;
   --purple-bright: #A67DD4;
 
@@ -111,30 +81,18 @@
   --destructive-foreground: #E8E4D9;
 
   --border: rgba(201, 168, 76, 0.18);
-<<<<<<< HEAD
   --input: rgba(26, 26, 34, 0.80);
-=======
-  --input: #23232C;
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   --ring: #C9A84C;
 
   --shadow: #000000;
   --shadow-foreground: #E8E4D9;
   --ember: #C9A84C;
 
-<<<<<<< HEAD
   --gradient-void: radial-gradient(ellipse at 50% 0%, rgba(90, 30, 160, 0.22) 0%, rgba(30, 5, 60, 0.12) 40%, #080808 68%);
   --gradient-gold: linear-gradient(135deg, var(--gold-dim), var(--gold));
   --gradient-purple: linear-gradient(135deg, var(--purple), var(--purple-bright));
 
   --shadow-card: 0 4px 20px -8px rgba(0, 0, 0, 0.8);
-=======
-  --gradient-void: radial-gradient(ellipse at 50% 0%, rgba(123, 94, 167, 0.18) 0%, #0D0D0F 60%);
-  --gradient-gold: linear-gradient(135deg, var(--gold-dim), var(--gold));
-  --gradient-purple: linear-gradient(135deg, var(--purple), var(--purple-bright));
-
-  --shadow-card: 0 4px 16px -8px rgba(0, 0, 0, 0.6);
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
   --shadow-glow: 0 0 16px rgba(201, 168, 76, 0.3);
 }
 
@@ -153,7 +111,6 @@
 }
 
 @layer utilities {
-<<<<<<< HEAD
   /* Text glow — subtle on most text */
   .text-glow { text-shadow: 0 0 14px rgba(201, 168, 76, 0.45); }
   /* Stronger glow for hero headings */
@@ -267,38 +224,68 @@
   @keyframes float-slow {
     0%, 100% { transform: translateY(0); }
     50%       { transform: translateY(-6px); }
-=======
-  .text-glow { text-shadow: 0 0 12px rgba(201, 168, 76, 0.4); }
-  .text-glow-ember { text-shadow: 0 0 12px rgba(201, 168, 76, 0.5); }
-  .text-glow-purple { text-shadow: 0 0 12px rgba(166, 125, 212, 0.4); }
-  .bg-spell { background: var(--gradient-gold); }
-  .bg-ember { background: var(--gradient-gold); }
-  .bg-rank { background: linear-gradient(135deg, #1C1C22, #141418); }
-  .bg-surface { background: var(--surface); }
-  .bg-surface-2 { background: var(--surface-2); }
-  .bg-surface-3 { background: var(--surface-3); }
-  .shadow-spell { box-shadow: 0 4px 20px -6px rgba(201, 168, 76, 0.4); }
-  .shadow-ember { box-shadow: 0 0 24px -4px rgba(201, 168, 76, 0.4); }
-  .shadow-card { box-shadow: var(--shadow-card); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
-  .border-rune {
-    border: 0.5px solid rgba(201, 168, 76, 0.25);
   }
-  .border-purple-rune {
-    border: 0.5px solid rgba(123, 94, 167, 0.4);
-  }
-  .border-danger-rune {
-    border: 0.5px solid rgba(192, 57, 43, 0.3);
-  }
-  .pulse-spell { animation: pulse-spell 3s ease-in-out infinite; }
-  @keyframes pulse-spell {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.2); }
-    50% { box-shadow: 0 0 0 12px rgba(201, 168, 76, 0); }
-  }
-  .float-slow { animation: float-slow 6s ease-in-out infinite; }
-  @keyframes float-slow {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
->>>>>>> 67891d0b27fe2be929d6ffbd7fd1850ebf28d11a
-  }
+}
+
+/* ── Mobile platform adaptations ──────────────────────────────────────────────
+   Applied globally when the user selects the Mobile interface.
+   Goal: same features, tighter ratios that fit narrow phone screens.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+body[data-platform="mobile"] {
+  /* Tighten display-font letter-spacing so long words don't overflow */
+  --mobile-display-tracking: 0.12em;
+}
+
+/* Cinzel display text — ease the ultra-wide tracking on narrow screens */
+body[data-platform="mobile"] .font-display,
+body[data-platform="mobile"] h1,
+body[data-platform="mobile"] h2,
+body[data-platform="mobile"] h3 {
+  letter-spacing: var(--mobile-display-tracking);
+}
+
+/* Page headers (e.g. "THE HIERARCHY", "HOME", "DREAMREALM") */
+body[data-platform="mobile"] header h1 {
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+}
+
+/* Stat / score numbers in cards */
+body[data-platform="mobile"] .font-display.text-xl {
+  font-size: 1.1rem;
+}
+
+/* Reduce the generous section gaps on list-style pages */
+body[data-platform="mobile"] .space-y-4 {
+  --tw-space-y: 0.65rem;
+}
+
+/* Card inner padding — slightly more compact */
+body[data-platform="mobile"] .p-4 {
+  padding: 0.65rem;
+}
+body[data-platform="mobile"] .p-3\.5 {
+  padding: 0.6rem;
+}
+body[data-platform="mobile"] .p-3 {
+  padding: 0.5rem;
+}
+
+/* Bottom-nav safe-area: ensure it doesn't clip content on phones */
+body[data-platform="mobile"] .pb-24 {
+  padding-bottom: 5.5rem;
+}
+
+/* Tab bars with many items (leaderboard class tabs) — smaller text */
+body[data-platform="mobile"] button[class*="tracking-wider"][class*="text-[11px]"] {
+  font-size: 0.6rem;
+  padding-left: 0.45rem;
+  padding-right: 0.45rem;
+}
+
+/* Landing page shimmer particles — fewer/smaller look better on mobile */
+body[data-platform="mobile"] .shimmer-particle {
+  transform: scale(0.65);
+  opacity: 0.8;
 }

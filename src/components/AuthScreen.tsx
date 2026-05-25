@@ -52,7 +52,7 @@ export function AuthScreen() {
 
       {/* Logo / title */}
       <div className="text-center mb-8">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-gold/70 mb-3">Nightmare Ascension ✓ UPDATED</p>
+        <p className="text-[10px] uppercase tracking-[0.4em] text-gold/70 mb-3">Nightmare Ascension</p>
         <h1 className="font-display text-2xl text-gold tracking-[0.2em] text-glow-strong">
           {tab === "signin" ? "SIGN IN" : "CREATE ACCOUNT"}
         </h1>

@@ -370,7 +370,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Nightmare Ascension ✓" },
+      { title: "Nightmare Ascension" },
       { name: "description", content: "Train as an Aspirant of Nightmare Ascension. Log workouts, conquer Nightmares, and ascend through the ranks." },
       { name: "author", content: "NMA Devs" },
       // PWA / installability

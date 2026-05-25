@@ -41,38 +41,62 @@ const RANK_BORDER: Record<MemoryRank, string> = {
 };
 
 // ── Desktop memory-orb positions ───────────────────────────────────────────
-// Uses the full viewport width; designed for wide screens where the centre
-// text column (≈33–67 % x) has room to breathe.
+// Safe zones: left margin (x 2–31 %) and right margin (x 69–98 %).
+// The centre column (≈33–67 % x) is kept clear for the soul text.
+// y is capped at 85 % so no orb can ever overlap the fixed bottom nav bar.
+// 59 positions total — enough that wrapping only occurs at very high counts.
 const DESKTOP_FLOAT_POS: Array<{ x: number; y: number }> = [
-  { x: 4,  y: 8  }, { x: 7,  y: 21 }, { x: 4,  y: 35 }, { x: 8,  y: 49 },
-  { x: 5,  y: 63 }, { x: 7,  y: 76 }, { x: 4,  y: 89 },
-  { x: 94, y: 12 }, { x: 92, y: 26 }, { x: 95, y: 40 }, { x: 93, y: 54 },
-  { x: 94, y: 68 }, { x: 92, y: 82 }, { x: 95, y: 93 },
-  { x: 18, y: 5  }, { x: 26, y: 17 }, { x: 21, y: 31 }, { x: 29, y: 45 },
-  { x: 17, y: 59 }, { x: 24, y: 72 }, { x: 20, y: 85 },
-  { x: 76, y: 7  }, { x: 82, y: 20 }, { x: 72, y: 34 }, { x: 80, y: 48 },
-  { x: 74, y: 62 }, { x: 83, y: 75 }, { x: 70, y: 88 },
-  { x: 38, y: 3  }, { x: 50, y: 6  }, { x: 62, y: 4  },
-  { x: 36, y: 91 }, { x: 50, y: 94 }, { x: 64, y: 96 },
-  { x: 11, y: 14 }, { x: 13, y: 43 }, { x: 10, y: 70 },
-  { x: 87, y: 16 }, { x: 89, y: 57 }, { x: 86, y: 79 },
+  // ── Outermost left column (x ≈ 4) ──
+  { x: 4,  y: 6  }, { x: 4,  y: 18 }, { x: 4,  y: 30 }, { x: 4,  y: 42 },
+  { x: 4,  y: 54 }, { x: 4,  y: 66 }, { x: 4,  y: 78 },
+  // ── Inner-left column (x ≈ 10) ──
+  { x: 10, y: 12 }, { x: 10, y: 24 }, { x: 10, y: 36 }, { x: 10, y: 48 },
+  { x: 10, y: 60 }, { x: 10, y: 72 }, { x: 10, y: 83 },
+  // ── Mid-left column (x ≈ 17) ──
+  { x: 17, y: 5  }, { x: 17, y: 17 }, { x: 17, y: 29 }, { x: 17, y: 41 },
+  { x: 17, y: 53 }, { x: 17, y: 65 }, { x: 17, y: 77 },
+  // ── Near-left column (x ≈ 24) ──
+  { x: 24, y: 9  }, { x: 24, y: 21 }, { x: 24, y: 33 }, { x: 24, y: 45 },
+  { x: 24, y: 57 }, { x: 24, y: 69 }, { x: 24, y: 81 },
+  // ── Near-right column (x ≈ 76) ──
+  { x: 76, y: 9  }, { x: 76, y: 21 }, { x: 76, y: 33 }, { x: 76, y: 45 },
+  { x: 76, y: 57 }, { x: 76, y: 69 }, { x: 76, y: 81 },
+  // ── Mid-right column (x ≈ 83) ──
+  { x: 83, y: 5  }, { x: 83, y: 17 }, { x: 83, y: 29 }, { x: 83, y: 41 },
+  { x: 83, y: 53 }, { x: 83, y: 65 }, { x: 83, y: 77 },
+  // ── Inner-right column (x ≈ 90) ──
+  { x: 90, y: 12 }, { x: 90, y: 24 }, { x: 90, y: 36 }, { x: 90, y: 48 },
+  { x: 90, y: 60 }, { x: 90, y: 72 }, { x: 90, y: 83 },
+  // ── Outermost right column (x ≈ 96) ──
+  { x: 96, y: 6  }, { x: 96, y: 18 }, { x: 96, y: 30 }, { x: 96, y: 42 },
+  { x: 96, y: 54 }, { x: 96, y: 66 }, { x: 96, y: 78 },
+  // ── Top strip (above the soul text, centre x is fine here) ──
+  { x: 37, y: 3  }, { x: 50, y: 5  }, { x: 63, y: 3  },
 ];
 
 // ── Mobile memory-orb positions ────────────────────────────────────────────
-// On a narrow phone the text column spans ~7–93 % of the viewport width, so
-// orbs are pushed to the extreme edges (≤5 % and ≥95 %) plus the top/bottom
-// strips where they can't obscure the label text.
+// On a narrow phone the text column spans ~8–92 % of the viewport width, so
+// orbs live in the extreme left/right strips (x ≤ 8 % or x ≥ 92 %) and the
+// top strip (y ≤ 5 %).  y is hard-capped at 85 % — nothing enters the bottom
+// nav zone.  38 positions means memories stay visible up to much higher counts
+// before cycling.
 const MOBILE_FLOAT_POS: Array<{ x: number; y: number }> = [
-  // Far-left strip (x: 2–5 %)
-  { x: 3,  y: 9  }, { x: 5,  y: 23 }, { x: 3,  y: 38 }, { x: 5,  y: 53 },
-  { x: 3,  y: 67 }, { x: 5,  y: 81 }, { x: 3,  y: 93 },
-  // Far-right strip (x: 95–98 %)
-  { x: 97, y: 15 }, { x: 95, y: 29 }, { x: 97, y: 44 }, { x: 95, y: 58 },
-  { x: 97, y: 72 }, { x: 95, y: 86 }, { x: 97, y: 96 },
-  // Top strip (y: 2–5 %, centre x OK)
-  { x: 22, y: 2  }, { x: 50, y: 4  }, { x: 78, y: 2  },
-  // Bottom strip (y: 95–98 %)
-  { x: 22, y: 97 }, { x: 50, y: 96 }, { x: 78, y: 97 },
+  // ── Far-left strip (x ≈ 3) ──
+  { x: 3, y: 8  }, { x: 3, y: 18 }, { x: 3, y: 28 }, { x: 3, y: 38 },
+  { x: 3, y: 48 }, { x: 3, y: 58 }, { x: 3, y: 68 }, { x: 3, y: 78 },
+  { x: 3, y: 85 },
+  // ── Inner-left strip (x ≈ 7) ──
+  { x: 7, y: 13 }, { x: 7, y: 23 }, { x: 7, y: 33 }, { x: 7, y: 43 },
+  { x: 7, y: 53 }, { x: 7, y: 63 }, { x: 7, y: 73 }, { x: 7, y: 83 },
+  // ── Far-right strip (x ≈ 97) ──
+  { x: 97, y: 8  }, { x: 97, y: 18 }, { x: 97, y: 28 }, { x: 97, y: 38 },
+  { x: 97, y: 48 }, { x: 97, y: 58 }, { x: 97, y: 68 }, { x: 97, y: 78 },
+  { x: 97, y: 85 },
+  // ── Inner-right strip (x ≈ 93) ──
+  { x: 93, y: 13 }, { x: 93, y: 23 }, { x: 93, y: 33 }, { x: 93, y: 43 },
+  { x: 93, y: 53 }, { x: 93, y: 63 }, { x: 93, y: 73 }, { x: 93, y: 83 },
+  // ── Top strip (centre x is safe this high up) ──
+  { x: 20, y: 3 }, { x: 40, y: 4 }, { x: 60, y: 3 }, { x: 80, y: 4 },
 ];
 
 const STAR_PTS: Array<{ x: number; y: number }> = [
@@ -241,9 +265,10 @@ function SoulPage() {
 
       {/* Floating memory orbs */}
       {floaters.map((mem, i) => {
-        const base = floatPos[i % floatPos.length];
-        const lap  = Math.floor(i / floatPos.length);
-        const pos  = { x: base.x + lap * (isMobile ? 0 : 3), y: base.y + lap * (isMobile ? 2 : 4) };
+        // Cycle through the safe position pool. When count exceeds pool size the
+        // positions repeat — orbs share a slot but stay inside the safe zones
+        // (margins + top strip, never the bottom nav or centre text).
+        const pos = floatPos[i % floatPos.length];
         const isActive = pinnedMemory?.id === mem.id || hoveredMemory?.id === mem.id;
 
         const showBelow   = pos.y < 75;

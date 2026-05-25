@@ -134,7 +134,7 @@ function Nightmare() {
   const equippedMemories = state.memories.filter(m => state.equippedMemoryIds.includes(m.id));
   const memoryEffects = equippedMemories.map(getMemoryEffect);
   const strongest = strongestMuscleFromBaselines(state.baselines, state.firstNightmareSets);
-  const ctx = computeBonuses(state.flaw ?? null, state.trueName ?? null, memoryEffects, strongest);
+  const ctx = computeBonuses(state.flaw ?? null, state.trueName ?? null, memoryEffects, strongest, state.aspect?.rank ?? null);
 
   function pause() {
     // Save all muscles that have valid values entered this session

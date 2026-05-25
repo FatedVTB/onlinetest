@@ -191,6 +191,18 @@ export const ASPECT_RANK_MULT: Record<AspectRank, number> = {
   Awakened: 1.0, Ascended: 1.5, Transcended: 2.0, Supreme: 2.75, Sacred: 3.5, Divine: 4.0,
 };
 
+// Flaw penalties silently scale with aspect rank — roughly half the rate of the aspect's
+// own growth so the downside is meaningfully worse at higher power without negating the upside.
+// e.g. a –12% flaw at Awakened becomes –26% at Divine.
+export const FLAW_RANK_MULT: Record<AspectRank, number> = {
+  Awakened:    1.00,
+  Ascended:    1.18,
+  Transcended: 1.40,
+  Supreme:     1.65,
+  Sacred:      1.90,
+  Divine:      2.20,
+};
+
 export type Aspect = {
   name: string;
   description: string;
@@ -356,18 +368,22 @@ export function computeBonuses(
   trueName: TrueName | null,
   memoryEffects: MemoryEffect[],
   strongestMuscle: MuscleGroup | null,
+  aspectRank: AspectRank | null = null,
 ): BonusCtx {
   const ctx: BonusCtx = { ...EMPTY_BONUS_CTX, musclePct: {}, bonusWeightByMuscle: {} };
 
   if (flaw) {
     const e = flaw.effect;
+    // Scale all flaw penalties by the player's aspect rank — silently, no UI label.
+    const flawMult = aspectRank ? FLAW_RANK_MULT[aspectRank] : 1;
     if (e.shardMuscles && e.shardPct !== undefined) {
+      const scaledPct = Math.round(e.shardPct * flawMult);
       for (const m of e.shardMuscles) {
-        ctx.musclePct[m] = (ctx.musclePct[m] ?? 0) + e.shardPct;
+        ctx.musclePct[m] = (ctx.musclePct[m] ?? 0) + scaledPct;
       }
     }
-    if (e.nmExtraPct)  ctx.nmExtraPct  += e.nmExtraPct;
-    if (e.nmExtraFlat) ctx.nmExtraFlat += e.nmExtraFlat;
+    if (e.nmExtraPct)  ctx.nmExtraPct  += Math.round(e.nmExtraPct  * flawMult);
+    if (e.nmExtraFlat) ctx.nmExtraFlat += Math.round(e.nmExtraFlat * flawMult);
   }
 
   if (trueName) {

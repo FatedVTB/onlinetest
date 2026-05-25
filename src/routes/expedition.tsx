@@ -183,7 +183,7 @@ function DreamRealm() {
   const equippedMemories = state.memories.filter(m => state.equippedMemoryIds.includes(m.id));
   const memoryEffects = equippedMemories.map(getMemoryEffect);
   const strongest = strongestMuscleFromBaselines(state.baselines, state.firstNightmareSets);
-  const ctx = computeBonuses(state.flaw ?? null, state.trueName ?? null, memoryEffects, strongest);
+  const ctx = computeBonuses(state.flaw ?? null, state.trueName ?? null, memoryEffects, strongest, state.aspect?.rank ?? null);
 
   // Per-channel memory drop chances — each channel capped independently at 80%
   // Formula: (base + flat + cohort flat) × (doublers >= 1 ? 2 : 1) + max(0, doublers − 1) × 10, capped at 80

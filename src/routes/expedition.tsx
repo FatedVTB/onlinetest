@@ -305,9 +305,14 @@ function DreamRealm() {
     const set: SetLog = { exercise, muscle, weight: effectiveWeight, reps: r };
     const weightBaseline = state.baselines[exercise];
     const repBaseline = state.repBaselines?.[exercise];
+    // Rep PR: 2+ reps over the stored rep baseline at this weight.
+    // If no rep baseline exists yet, fall back to the 8-rep threshold so
+    // exercises that were never tracked still get rep PRs.
+    const repPR = effectiveWeight >= (weightBaseline ?? Infinity) &&
+      r >= (repBaseline !== undefined ? repBaseline + 2 : 8);
     const isPR = weightBaseline !== undefined && (
       effectiveWeight > weightBaseline ||
-      (effectiveWeight >= weightBaseline && repBaseline !== undefined && r >= repBaseline + 2)
+      repPR
     );
     // Use first-nightmare weight as the fixed shard-rate baseline; fall back to best-ever for new exercises
     const nm1Weight = state.firstNightmareSets?.find(s => s.exercise === exercise)?.weight
@@ -891,9 +896,11 @@ function DreamRealm() {
                     const effectiveWeight = isBW ? bodyWeight + Number(extraWeight || 0) : Number(weight);
                     const weightBaseline2 = state.baselines[exercise];
                     const repBaseline2 = state.repBaselines?.[exercise];
+                    const repPR2 = effectiveWeight >= (weightBaseline2 ?? Infinity) &&
+                      Number(reps) >= (repBaseline2 !== undefined ? repBaseline2 + 2 : 8);
                     const isPR = weightBaseline2 !== undefined && (
                       effectiveWeight > weightBaseline2 ||
-                      (effectiveWeight >= weightBaseline2 && repBaseline2 !== undefined && Number(reps) >= repBaseline2 + 2)
+                      repPR2
                     );
                     const nm1Weight2 = state.firstNightmareSets?.find(s => s.exercise === exercise)?.weight
                       ?? state.baselines[exercise]

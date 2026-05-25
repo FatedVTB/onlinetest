@@ -67,8 +67,8 @@ function ProfileCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
             <p className="font-display text-sm text-gold tracking-wide">{profile.username}</p>
-            {profile.displayName && profile.displayName !== profile.username && (
-              <p className="text-[10px] text-muted-foreground">"{profile.displayName}"</p>
+            {profile.displayName && (
+              <p className="text-[10px] text-muted-foreground">({profile.displayName})</p>
             )}
           </div>
           <div className="flex items-center gap-3 mt-0.5 flex-wrap">

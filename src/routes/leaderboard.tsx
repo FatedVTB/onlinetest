@@ -31,7 +31,8 @@ const CLASS_COLORS: Record<number, { tab: string; badge: string }> = {
 };
 
 type Entry = {
-  name: string;
+  name: string;        // username (used as primary ID / display)
+  displayName?: string; // in-game character name shown in brackets
   username?: string;
   shards: number;
   rank: string;
@@ -66,12 +67,13 @@ function LeaderboardPage() {
   function profileToEntry(p: PublicProfile): Entry {
     const isMe = p.username === currentUser;
     return {
-      name:     isMe ? `${p.username} (you)` : p.username,
-      username: p.username,
-      shards:   p.totalShards,
-      rank:     p.rank,
+      name:        p.username,
+      displayName: p.displayName || undefined,
+      username:    p.username,
+      shards:      p.totalShards,
+      rank:        p.rank,
       isMe,
-      isReal:   true,
+      isReal:      true,
     };
   }
 
@@ -88,11 +90,12 @@ function LeaderboardPage() {
   const meAlreadyInAll = allRealEntries.some(e => e.isMe);
   if (state.profile && !meAlreadyInAll) {
     allRealEntries.push({
-      name:   `${state.profile.name} (you)`,
-      shards: state.totalShards,
-      rank:   myRank,
-      isMe:   true,
-      isReal: true,
+      name:        currentUser ?? state.profile.name,
+      displayName: state.profile.name,
+      shards:      state.totalShards,
+      rank:        myRank,
+      isMe:        true,
+      isReal:      true,
     });
     allRealEntries.sort((a, b) => b.shards - a.shards);
   }
@@ -341,8 +344,14 @@ function Row({
       </div>
 
       <div className="relative flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <p className="text-sm truncate">{entry.name}</p>
+          {entry.displayName && (
+            <span className="text-[11px] text-muted-foreground flex-shrink-0">({entry.displayName})</span>
+          )}
+          {entry.isMe && (
+            <span className="text-[8px] text-gold border border-gold/40 px-1 py-px flex-shrink-0">YOU</span>
+          )}
           {entry.isReal && !entry.isMe && (
             <span className="text-[8px] text-accent border border-accent/30 px-1 py-px flex-shrink-0">LIVE</span>
           )}

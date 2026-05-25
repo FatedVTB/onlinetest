@@ -210,7 +210,7 @@ export const EXERCISE_MUSCLE: Record<string, MuscleGroup> = Object.fromEntries(
 // Which muscle groups are "related" for aspect secondary bonus expansion
 const MUSCLE_RELATED: Record<MuscleGroup, MuscleGroup[]> = {
   Chest:     ["Shoulders", "Triceps"],
-  Back:      ["Biceps"],
+  Back:      ["Biceps", "Forearms"],
   Shoulders: ["Chest", "Triceps"],
   Biceps:    ["Back", "Forearms"],
   Triceps:   ["Chest", "Shoulders"],
@@ -348,7 +348,7 @@ export const EMPTY_BONUS_CTX: BonusCtx = {
 };
 
 const PRESS_MUSCLES: MuscleGroup[] = ["Chest", "Shoulders", "Triceps"];
-const PULL_MUSCLES:  MuscleGroup[] = ["Back", "Biceps"];
+const PULL_MUSCLES:  MuscleGroup[] = ["Back", "Biceps", "Forearms"];
 const ARM_MUSCLES:   MuscleGroup[] = ["Biceps", "Triceps", "Forearms"];
 
 export function computeBonuses(
@@ -393,8 +393,9 @@ export function computeBonuses(
       ctx.musclePct["Triceps"]   = (ctx.musclePct["Triceps"]   ?? 0) + e.pusherPct;
     }
     if (e.pullerPct) {
-      ctx.musclePct["Back"]   = (ctx.musclePct["Back"]   ?? 0) + e.pullerPct;
-      ctx.musclePct["Biceps"] = (ctx.musclePct["Biceps"] ?? 0) + e.pullerPct;
+      ctx.musclePct["Back"]     = (ctx.musclePct["Back"]     ?? 0) + e.pullerPct;
+      ctx.musclePct["Biceps"]   = (ctx.musclePct["Biceps"]   ?? 0) + e.pullerPct;
+      ctx.musclePct["Forearms"] = (ctx.musclePct["Forearms"] ?? 0) + e.pullerPct;
     }
     if (e.armPct) {
       ctx.musclePct["Biceps"]  = (ctx.musclePct["Biceps"]  ?? 0) + e.armPct;
@@ -643,7 +644,7 @@ const FLAW_POOL: Record<MuscleGroup, Flaw[]> = {
     { name: "Hollow Ribs",    description: "Failed Nightmares cost an extra 75 shards.",                    effect: { nmExtraFlat: 75 } },
   ],
   Back: [
-    { name: "Brittle Spine",  description: "Pulling exercises grant 15% fewer shards.",                     effect: { shardMuscles: ["Back","Biceps"], shardPct: -15 } },
+    { name: "Brittle Spine",  description: "Pulling exercises grant 15% fewer shards.",                     effect: { shardMuscles: ["Back","Biceps","Forearms"], shardPct: -15 } },
     { name: "Crooked Lat",    description: "Back sets grant 15% fewer shards.",                             effect: { shardMuscles: ["Back"], shardPct: -15 } },
     { name: "Slack Posture",  description: "Back sets grant 20% fewer shards.",                             effect: { shardMuscles: ["Back"], shardPct: -20 } },
     { name: "Hunched Shadow", description: "Failed Nightmares cost 15% more shards.",                       effect: { nmExtraPct: 15 } },
@@ -706,7 +707,7 @@ export const TRUE_NAMES: TrueName[] = [
   { name: "The Unbroken",  description: "Nightmare ascension threshold reduced to 17%.",                       effect: { nmThresholdReduction: true } },
   // New entries
   { name: "Emberbrand",    description: "+14% shards on all pressing exercises (Chest, Shoulders, Triceps).",  effect: { pusherPct: 14 } },
-  { name: "Tide Warden",   description: "+14% shards on all pulling exercises (Back, Biceps).",                effect: { pullerPct: 14 } },
+  { name: "Tide Warden",   description: "+14% shards on all pulling exercises (Back, Biceps, Forearms).",      effect: { pullerPct: 14 } },
   { name: "Iron Pilgrim",  description: "+3 flat shards on every set logged.",                                 effect: { flatPerSet: 3 } },
   { name: "Dawnstrider",   description: "+18% shards on all Leg exercises.",                                   effect: { legPct: 18 } },
   { name: "The Witness",   description: "+16% shards on all Arm exercises (Biceps, Triceps).",                 effect: { armPct: 16 } },
@@ -730,7 +731,7 @@ export const FIRST_NM_TRUE_NAMES: TrueName[] = [
   { name: "The Unbroken",  description: "Nightmare ascension threshold reduced to 14%.",                             effect: { nmThresholdValue: 0.14 } },
   // New entries — ~40% stronger than their standard counterparts
   { name: "Emberbrand",    description: "+20% shards on all pressing exercises (Chest, Shoulders, Triceps).",        effect: { pusherPct: 20 } },
-  { name: "Tide Warden",   description: "+20% shards on all pulling exercises (Back, Biceps).",                      effect: { pullerPct: 20 } },
+  { name: "Tide Warden",   description: "+20% shards on all pulling exercises (Back, Biceps, Forearms).",            effect: { pullerPct: 20 } },
   { name: "Iron Pilgrim",  description: "+4 flat shards on every set logged.",                                       effect: { flatPerSet: 4 } },
   { name: "Dawnstrider",   description: "+25% shards on all Leg exercises.",                                         effect: { legPct: 25 } },
   { name: "The Witness",   description: "+22% shards on all Arm exercises (Biceps, Triceps).",                       effect: { armPct: 22 } },

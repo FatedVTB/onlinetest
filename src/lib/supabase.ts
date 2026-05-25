@@ -142,6 +142,54 @@ export async function pushKeyToSupabase(key: string): Promise<void> {
   } catch {}
 }
 
+/**
+ * Remove a single entry from a dict-type row in Supabase.
+ * Used for account/profile deletion — the regular merge-push cannot remove keys.
+ * Fetches the current dict, deletes the entry, and writes the result back.
+ */
+export async function removeFromSupabaseDict(dictKey: string, entryKey: string): Promise<void> {
+  if (typeof localStorage === "undefined") return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/ss_shared_data?select=key,value&key=eq.${encodeURIComponent(dictKey)}`,
+      { headers: headers() }
+    );
+    if (!res.ok) return;
+    const rows = (await res.json()) as { key: string; value: unknown }[];
+
+    const dict: Record<string, unknown> =
+      rows.length > 0 && rows[0].value && typeof rows[0].value === "object" && !Array.isArray(rows[0].value)
+        ? { ...(rows[0].value as Record<string, unknown>) }
+        : {};
+
+    delete dict[entryKey];
+
+    // Push the cleaned dict (bypasses the merge — this IS the authoritative version)
+    await fetch(`${SUPABASE_URL}/rest/v1/ss_shared_data`, {
+      method:  "POST",
+      headers: headers({ Prefer: "resolution=merge-duplicates" }),
+      body:    JSON.stringify({ key: dictKey, value: dict, updated_at: Date.now() }),
+    });
+
+    // Mirror to localStorage so local is immediately consistent
+    try { localStorage.setItem(dictKey, JSON.stringify(dict)); } catch {}
+  } catch {}
+}
+
+/**
+ * Delete an entire row from Supabase and remove it from localStorage.
+ * Used for per-user game-state rows (nma-state-{username}).
+ */
+export async function deleteSupabaseKey(key: string): Promise<void> {
+  try {
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/ss_shared_data?key=eq.${encodeURIComponent(key)}`,
+      { method: "DELETE", headers: headers({ Prefer: "return=minimal" }) }
+    );
+    try { localStorage.removeItem(key); } catch {}
+  } catch {}
+}
+
 export function useSyncRefresh(): void {
   const [, setTick] = useState(0);
   useEffect(() => {

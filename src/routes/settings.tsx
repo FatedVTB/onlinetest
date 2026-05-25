@@ -420,7 +420,7 @@ function SettingsPage() {
                           Cancel
                         </button>
                         <button
-                          onClick={() => deleteAccount()}
+                          onClick={() => void deleteAccount()}
                           className="py-2.5 bg-destructive text-destructive-foreground text-xs font-display tracking-[0.15em]"
                         >
                           DELETE

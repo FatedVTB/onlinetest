@@ -8,7 +8,7 @@
 //   "nma-state-{username}"  — per-user game state
 //   "shadow-slave-state-v1" — legacy (pre-accounts) save; migrated on first register
 
-import { syncKeyFromSupabase, pushKeyToSupabase, getBlacklistedAccounts } from "./supabase";
+import { syncKeyFromSupabase, pushKeyToSupabase, getBlacklistedAccounts, removeFromSupabaseDict, deleteSupabaseKey } from "./supabase";
 
 const ACCOUNTS_KEY   = "nma-accounts";
 const SESSION_KEY    = "nma-session";
@@ -179,8 +179,9 @@ export async function login(
 // ── Delete account ─────────────────────────────────────────────────────────
 // Wipes the player's game state, removes them from the account registry, and
 // clears the session. The username becomes available for registration again.
+// All deletions are mirrored to Supabase so the account doesn't reappear on sync.
 
-export function deleteAccount(): void {
+export async function deleteAccount(): Promise<void> {
   const user = getCurrentUser();
   if (!user || user === "__guest__") {
     // Guest: just clear the legacy state and session.
@@ -190,53 +191,45 @@ export function deleteAccount(): void {
     return;
   }
 
-  // 1. Wipe game progress
+  // 1. Remove from Supabase first (while we still know who we are)
+  //    These are awaited so Supabase is clean before the session is cleared.
+  await removeFromSupabaseDict(ACCOUNTS_KEY, user);
+  await removeFromSupabaseDict("nma-public-profiles", user);
+  await deleteSupabaseKey(`nma-state-${user}`);
+  // Best-effort: clean up array-type social rows in Supabase
+  cleanSupabaseArrays(user);
+
+  // 2. Wipe local game progress & draft
   try { localStorage.removeItem(`nma-state-${user}`); } catch {}
-  // Also wipe expedition draft
   try { localStorage.removeItem(`nma-expedition-draft-${user}`); } catch {}
 
-  // 2. Remove account record so the username is free again
-  const accounts = loadAccounts();
-  delete accounts[user];
-  saveAccounts(accounts);
-
-  // 3. Wipe all social data for this user so they vanish from leaderboards,
-  //    friend lists, cohorts, and pending requests immediately.
+  // 3. Wipe all local social data for this user
   try {
-    const PP_KEY  = "nma-public-profiles";
-    const FR_KEY  = "nma-friend-requests";
-    const FS_KEY  = "nma-friendships";
-    const SC_KEY  = "nma-social-cohorts";
-    const CI_KEY  = "nma-cohort-invites";
+    const PP_KEY = "nma-public-profiles";
+    const FR_KEY = "nma-friend-requests";
+    const FS_KEY = "nma-friendships";
+    const SC_KEY = "nma-social-cohorts";
+    const CI_KEY = "nma-cohort-invites";
 
-    // Remove public profile
     const profiles = JSON.parse(localStorage.getItem(PP_KEY) ?? "{}");
     delete profiles[user];
     localStorage.setItem(PP_KEY, JSON.stringify(profiles));
 
-    // Remove all friend requests involving this user
     const requests = (JSON.parse(localStorage.getItem(FR_KEY) ?? "[]") as Array<{from:string;to:string}>)
       .filter(r => r.from !== user && r.to !== user);
     localStorage.setItem(FR_KEY, JSON.stringify(requests));
 
-    // Remove all friendships involving this user
     const friendships = (JSON.parse(localStorage.getItem(FS_KEY) ?? "[]") as Array<{users:string[]}>)
       .filter(f => !f.users.includes(user));
     localStorage.setItem(FS_KEY, JSON.stringify(friendships));
 
-    // Remove from any cohort (kick or disband if leader)
     const cohorts = JSON.parse(localStorage.getItem(SC_KEY) ?? "{}") as Record<string, {leader:string;members:string[];code:string}>;
     for (const code of Object.keys(cohorts)) {
-      if (cohorts[code].leader === user) {
-        // Leader deleted → dissolve the cohort entirely
-        delete cohorts[code];
-      } else {
-        cohorts[code].members = cohorts[code].members.filter((m: string) => m !== user);
-      }
+      if (cohorts[code].leader === user) delete cohorts[code];
+      else cohorts[code].members = cohorts[code].members.filter((m: string) => m !== user);
     }
     localStorage.setItem(SC_KEY, JSON.stringify(cohorts));
 
-    // Remove all cohort invites involving this user
     const invites = (JSON.parse(localStorage.getItem(CI_KEY) ?? "[]") as Array<{from:string;to:string}>)
       .filter(i => i.from !== user && i.to !== user);
     localStorage.setItem(CI_KEY, JSON.stringify(invites));
@@ -246,6 +239,31 @@ export function deleteAccount(): void {
   try { localStorage.removeItem(SESSION_KEY); } catch {}
 
   window.location.replace("/");
+}
+
+/** Push cleaned array-type social keys to Supabase (fire-and-forget). */
+function cleanSupabaseArrays(user: string): void {
+  for (const key of ["nma-friend-requests", "nma-friendships", "nma-cohort-invites"]) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const arr = JSON.parse(raw) as Array<Record<string, unknown>>;
+      const cleaned = arr.filter(
+        item => item["from"] !== user && item["to"] !== user && !((item["users"] as string[] | undefined)?.includes(user))
+      );
+      // Push cleaned version directly (no merge — we're the authoritative cleaner)
+      fetch(`${import.meta.env.VITE_SUPABASE_URL ?? "https://houevxigsoowsybsbbpp.supabase.co"}/rest/v1/ss_shared_data`, {
+        method:  "POST",
+        headers: {
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvdWV2eGlnc29vd3N5YnNiYnBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1OTgwNDEsImV4cCI6MjA5NTE3NDA0MX0.HJgZaxQ4r7-cmBrOjyQVHr4iew6q3JJx5FB2MBmnRT4",
+          Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvdWV2eGlnc29vd3N5YnNiYnBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1OTgwNDEsImV4cCI6MjA5NTE3NDA0MX0.HJgZaxQ4r7-cmBrOjyQVHr4iew6q3JJx5FB2MBmnRT4",
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates",
+        },
+        body: JSON.stringify({ key, value: cleaned, updated_at: Date.now() }),
+      }).catch(() => {});
+    } catch {}
+  }
 }
 
 // ── Guest session ──────────────────────────────────────────────────────────

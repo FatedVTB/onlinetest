@@ -17,7 +17,7 @@ import {
   type Rank, type Aspect, type Flaw, type SetLog,
 } from "@/lib/game";
 import { rollGuaranteedMemoryDrop } from "@/lib/memories";
-import { syncFromSupabase, initialPushAllToSupabase } from "@/lib/supabase";
+import { syncFromSupabase } from "@/lib/supabase";
 
 import appCss from "../styles.css?url";
 
@@ -425,9 +425,6 @@ function RootShell({ children }: { children: React.ReactNode }) {
  */
 function SyncComponent() {
   useEffect(() => {
-    // Upload any existing local data first so other users can see it immediately.
-    initialPushAllToSupabase();
-
     // Build the list of keys to sync — shared social keys + the current user's game state.
     // The game state key is passed as an extraKey so it gets pulled from Supabase on every
     // sync tick, keeping progress up-to-date if the user switches devices.

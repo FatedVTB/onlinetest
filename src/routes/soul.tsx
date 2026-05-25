@@ -68,30 +68,45 @@ const DESKTOP_FLOAT_POS: Array<{ x: number; y: number }> = (() => {
 })();
 
 // ── Mobile memory-orb positions ────────────────────────────────────────────
-// Strategy:
-//   1. Margin strips: x=2% and x=98% are safe on ALL phone sizes (including
-//      360 px-wide devices where the max-w-xs text block starts at ~20 px).
-//   2. Above-text zone: mobile text starts at pt-[36vh], so y < 31% is
-//      completely free for any x value — no text or nav bar to avoid.
-//   3. y hard-capped at 84% to stay clear of the fixed bottom nav bar.
-// Total: 13×2 margin + 9×5 above-text = 26 + 45 = 71 positions.
+// Four safe zones — orb is 24px so center must stay ≥12px from screen edges;
+// x=5% is the minimum safe value on a 240px+ device.
+// y is hard-capped at 84% to stay clear of the fixed bottom nav bar.
+//
+// Zone 1 — Above text  (y < 31%): full width safe, text starts at pt-[36vh]
+// Zone 2 — Left strip  (y 33–76%): beside the centered labels (x ≤ 16%)
+// Zone 3 — Right strip (y 33–76%): beside the centered labels (x ≥ 84%)
+// Zone 4 — Below text  (y 78–84%): center is clear once labels end
+//
+// Total: 55 + 16 + 16 + 14 = 101 positions
 const MOBILE_FLOAT_POS: Array<{ x: number; y: number }> = (() => {
   const out: Array<{ x: number; y: number }> = [];
 
-  // Margin strips — far left and far right, safe for all phone widths
-  const marginYs = [5, 11, 17, 23, 30, 37, 44, 51, 58, 65, 72, 79, 84];
-  for (const y of marginYs) {
-    out.push({ x: 2, y });
-    out.push({ x: 98, y });
-  }
-
-  // Above-text zone — text starts at ~36vh so y < 31% is safe for any x
-  const aboveXs = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+  // Zone 1: above text — any x from 5%–95%, y 4%–27%
+  const aboveXs = [5, 14, 23, 32, 41, 50, 59, 68, 77, 86, 95];
   const aboveYs = [4, 9, 15, 21, 27];
   for (const x of aboveXs) {
     for (const y of aboveYs) {
       out.push({ x, y });
     }
+  }
+
+  // Zone 2: left of centered text labels (y 33–76%)
+  // Centered labels (e.g. TRUE NAME) extend to about x=22%, so x≤16% is safe
+  const sideYs = [33, 39, 45, 51, 57, 63, 69, 75];
+  for (const x of [5, 13]) {
+    for (const y of sideYs) out.push({ x, y });
+  }
+
+  // Zone 3: right of centered text labels
+  for (const x of [87, 95]) {
+    for (const y of sideYs) out.push({ x, y });
+  }
+
+  // Zone 4: below text — center is free once labels end (~y 77%)
+  const belowXs = [14, 25, 36, 50, 64, 75, 86];
+  for (const x of belowXs) {
+    out.push({ x, y: 79 });
+    out.push({ x, y: 84 });
   }
 
   return out;

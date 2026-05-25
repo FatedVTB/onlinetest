@@ -72,6 +72,16 @@ const DESKTOP_FLOAT_POS: Array<{ x: number; y: number }> = [
   { x: 96, y: 54 }, { x: 96, y: 66 }, { x: 96, y: 78 },
   // ── Top strip (above the soul text, centre x is fine here) ──
   { x: 37, y: 3  }, { x: 50, y: 5  }, { x: 63, y: 3  },
+
+  // ── Centre fill — only reached at ~60+ memories ──────────────────────────
+  // Text labels start at ≈44 vh and end at ≈70 vh; orbs go above and below.
+  // x: 38–63 % is the safe centre band that avoids the viewport margins.
+  { x: 42, y: 9  }, { x: 55, y: 6  }, { x: 61, y: 13 },
+  { x: 38, y: 17 }, { x: 50, y: 14 }, { x: 63, y: 21 },
+  { x: 41, y: 25 }, { x: 56, y: 29 }, { x: 47, y: 33 },
+  { x: 62, y: 37 }, { x: 38, y: 35 }, { x: 52, y: 39 },
+  { x: 43, y: 73 }, { x: 56, y: 76 }, { x: 61, y: 80 },
+  { x: 38, y: 78 }, { x: 50, y: 82 }, { x: 63, y: 74 },
 ];
 
 // ── Mobile memory-orb positions ────────────────────────────────────────────
@@ -284,11 +294,14 @@ function SoulPage() {
             ? { left: 0 }
             : { left: "50%", transform: "translateX(-50%)" }),
           width: `${popupWidth}px`,
-          zIndex: 6,
+          // Popup lives inside the orb's own stacking context; the orb is at
+          // z-index 9999 when active so this is already above every other orb.
+          zIndex: 10,
           pointerEvents: "auto",
           padding: "5px 7px",
-          background: "rgba(3,3,5,0.92)",
-          border: "1px solid rgba(201,168,76,0.15)",
+          background: "rgba(3,3,5,0.97)",
+          border: "1px solid rgba(201,168,76,0.28)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.9)",
         };
 
         return (
@@ -299,7 +312,8 @@ function SoulPage() {
               left: `${pos.x}%`,
               top:  `${pos.y}%`,
               transform: "translate(-50%,-50%)",
-              zIndex: isActive ? 50 : 5,
+              // 9999 when active so the popup is guaranteed above every other orb
+              zIndex: isActive ? 9999 : 5,
               width:  `${orbSize}px`,
               height: `${orbSize}px`,
               borderRadius: "50%",

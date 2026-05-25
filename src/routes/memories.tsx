@@ -5,7 +5,7 @@ import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 
 const EQUIP_LIMITS: Record<MemoryType, number> = {
-  Weapon: 2, Armour: 2, Charm: 2, Tool: Infinity,
+  Weapon: 3, Armour: 3, Charm: 3, Tool: Infinity,
 };
 
 export const Route = createFileRoute("/memories")({

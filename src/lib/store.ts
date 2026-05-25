@@ -10,9 +10,9 @@ import { computeRank } from "./game";
 
 // Max equipped per category (Infinity = no limit)
 const EQUIP_LIMITS: Record<MemoryType, number> = {
-  Weapon: 2,
-  Armour:  2,
-  Charm:  2,
+  Weapon: 3,
+  Armour: 3,
+  Charm:  3,
   Tool:   Infinity,
 };
 

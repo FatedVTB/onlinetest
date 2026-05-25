@@ -19,7 +19,7 @@ const TYPE_ICON: Record<MemoryType, string> = {
 };
 
 const EQUIP_LIMITS: Record<MemoryType, number> = {
-  Weapon: 2, Armour: 2, Charm: 2, Tool: Infinity,
+  Weapon: 3, Armour: 3, Charm: 3, Tool: Infinity,
 };
 
 const RANK_GLOW: Record<MemoryRank, string> = {

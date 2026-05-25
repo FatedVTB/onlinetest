@@ -703,7 +703,7 @@ const SLIDES: Slide[] = [
     body: "The Soul tab shows everything about your character — your memories, equip slots, and profile. Here is how to interact with it:",
     bullets: [
       { icon: "✧", text: "Equip slots (top of Soul) — shows what is currently equipped. Tap a filled slot to unequip that memory." },
-      { icon: "✧", text: "Memory list — tap any memory card to equip it. The slot limit (2 Weapon, 2 Armour, 2 Charm, unlimited Tool) is enforced automatically." },
+      { icon: "✧", text: "Memory list — tap any memory card to equip it. The slot limit (3 Weapon, 3 Armour, 3 Charm, unlimited Tool) is enforced automatically." },
       { icon: "✧", text: "Filter pills — tap a type (Weapon / Armour / Charm / Tool) to show only that category." },
       { icon: "✧", text: "Nightmare hub — inside the Dreamrealm tab, tap 'Nightmares' to see your history. When the next nightmare is unlocked a Challenge button appears." },
     ],

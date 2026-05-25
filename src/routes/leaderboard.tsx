@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useGame } from "@/lib/store";
-import { getCurrentUser, listAccounts } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import {
   CLASS_NAMES,
   classIndexForShards, classShards, classCost,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/social";
 import { rankFromCores, currentCoreInfo } from "@/lib/game";
 import { BottomNav } from "@/components/BottomNav";
+import { useSyncRefresh } from "@/lib/supabase";
 
 export const Route = createFileRoute("/leaderboard")({
   component: LeaderboardPage,
@@ -48,9 +49,13 @@ function LeaderboardPage() {
 
   const [boardTab, setBoardTab] = useState<BoardTab>("class");
 
-  // ── Real players — only show accounts that still exist ────────────────
-  const registeredSet = new Set(listAccounts());
-  const allProfiles   = getAllPublicProfiles().filter(p => registeredSet.has(p.username));
+  // Re-render whenever the background Supabase sync brings in new profiles
+  useSyncRefresh();
+
+  // ── Real players — all profiles that have synced from Supabase ────────
+  // NOTE: do NOT filter by listAccounts() — that only returns accounts on
+  // this device and would hide every player on a different device.
+  const allProfiles = getAllPublicProfiles();
   const friendNames   = currentUser && currentUser !== "__guest__"
     ? new Set(getFriendUsernames(currentUser)) : new Set<string>();
   const myCohort      = currentUser && currentUser !== "__guest__"

@@ -88,15 +88,63 @@ export function initialPushAllToSupabase(): void {
   }
 }
 
-export function pushKeyToSupabase(key: string): void {
+/**
+ * Push a localStorage key to Supabase.
+ *
+ * For plain-object (dictionary) values — which includes nma-accounts and
+ * nma-public-profiles — we do a safe merge push:
+ *   1. Fetch the current Supabase value
+ *   2. Merge: Supabase value as the base, local value on top
+ *      (local changes win, but entries that only exist in Supabase are kept)
+ *   3. Write the merged result back to localStorage AND push to Supabase
+ *
+ * This prevents the "last writer erases everyone else" race condition where
+ * a user's local copy only has their own entry and they overwrite the
+ * complete Supabase dict when they save.
+ *
+ * For arrays and primitives the merge is not safe to automate, so we push
+ * the local value as-is (same as before).
+ */
+export async function pushKeyToSupabase(key: string): Promise<void> {
   if (typeof localStorage === "undefined") return;
   try {
-    const raw   = localStorage.getItem(key);
-    const value = raw ? JSON.parse(raw) : null;
+    const raw = localStorage.getItem(key);
+    if (raw === null) return;
+    const localValue = JSON.parse(raw);
+
+    let valueToPush = localValue;
+
+    // Safe-merge for plain objects (nma-accounts, nma-public-profiles, etc.)
+    if (localValue !== null && typeof localValue === "object" && !Array.isArray(localValue)) {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/ss_shared_data?select=key,value&key=eq.${encodeURIComponent(key)}`,
+          { headers: headers() }
+        );
+        if (res.ok) {
+          const rows = (await res.json()) as { key: string; value: unknown }[];
+          if (
+            rows.length > 0 &&
+            rows[0].value !== null &&
+            typeof rows[0].value === "object" &&
+            !Array.isArray(rows[0].value)
+          ) {
+            // Supabase is the base (has everyone's entries); local overrides only our own entry
+            valueToPush = {
+              ...(rows[0].value as Record<string, unknown>),
+              ...localValue,
+            };
+            // Update localStorage with the merged result so local is always complete
+            try { localStorage.setItem(key, JSON.stringify(valueToPush)); } catch {}
+          }
+        }
+      } catch { /* network error — fall back to pushing local value as-is */ }
+    }
+
     fetch(`${SUPABASE_URL}/rest/v1/ss_shared_data`, {
       method:  "POST",
       headers: headers({ Prefer: "resolution=merge-duplicates" }),
-      body:    JSON.stringify({ key, value, updated_at: Date.now() }),
+      body:    JSON.stringify({ key, value: valueToPush, updated_at: Date.now() }),
     }).catch(() => {});
   } catch {}
 }

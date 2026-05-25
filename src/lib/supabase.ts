@@ -8,10 +8,6 @@ import { useState, useEffect } from "react";
 const SUPABASE_URL = "https://houevxigsoowsybsbbpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvdWV2eGlnc29vd3N5YnNiYnBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1OTgwNDEsImV4cCI6MjA5NTE3NDA0MX0.HJgZaxQ4r7-cmBrOjyQVHr4iew6q3JJx5FB2MBmnRT4";
 
-// Local-only key that tracks which server wipe version this client has applied.
-// NOT prefixed nma- so it doesn't get cleared during a wipe itself.
-const LOCAL_WIPE_VER_KEY = "ss-wipe-version";
-
 function headers(extra?: Record<string, string>): Record<string, string> {
   return {
     apikey: SUPABASE_KEY,
@@ -23,6 +19,7 @@ function headers(extra?: Record<string, string>): Record<string, string> {
 
 export const SHARED_KEYS = new Set([
   "nma-accounts",                    // account registry — must sync so login works on any device
+  "nma-blacklisted-accounts",        // usernames blocked from logging in (admin-deleted accounts)
   "nma-public-profiles",
   "nma-friend-requests",
   "nma-friendships",
@@ -33,36 +30,6 @@ export const SHARED_KEYS = new Set([
 ]);
 
 const SYNC_EVENT = "ss-data-synced";
-
-/**
- * Check whether the server has bumped the wipe version above the local version.
- * If so, erase every nma-* key from localStorage (accounts, profiles, game state,
- * friend data — everything) so the client starts clean on the next sync.
- * Returns true if a wipe was performed.
- */
-async function applyServerWipeIfNeeded(rows: { key: string; value: unknown }[]): Promise<boolean> {
-  const wipeRow = rows.find(r => r.key === "nma-wipe-version");
-  if (!wipeRow) return false;
-
-  const serverVer = (wipeRow.value as { version?: number })?.version ?? 0;
-  const localVer  = parseInt(localStorage.getItem(LOCAL_WIPE_VER_KEY) ?? "0", 10);
-  if (serverVer <= localVer) return false;
-
-  // Server version is newer — clear ALL nma-* keys from this device
-  const toRemove: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith("nma-")) toRemove.push(k);
-  }
-  toRemove.forEach(k => { try { localStorage.removeItem(k); } catch {} });
-
-  // Record the applied version so we don't wipe again on the next tick
-  localStorage.setItem(LOCAL_WIPE_VER_KEY, String(serverVer));
-
-  // Reload the page so the app reinitialises with clean state
-  if (typeof window !== "undefined") window.location.replace("/");
-  return true;
-}
 
 export async function syncFromSupabase(extraKeys: string[] = []): Promise<void> {
   if (typeof localStorage === "undefined") return;
@@ -76,10 +43,6 @@ export async function syncFromSupabase(extraKeys: string[] = []): Promise<void> 
     );
     if (!res.ok) return;
     const data = (await res.json()) as { key: string; value: unknown }[];
-
-    // Check wipe version first — may reload the page and return early
-    const wiped = await applyServerWipeIfNeeded(data);
-    if (wiped) return;
 
     let changed = false;
     for (const row of data) {
@@ -186,4 +149,12 @@ export function useSyncRefresh(): void {
     window.addEventListener(SYNC_EVENT, handler);
     return () => window.removeEventListener(SYNC_EVENT, handler);
   }, []);
+}
+
+/** Read the local blacklist (synced from Supabase). */
+export function getBlacklistedAccounts(): string[] {
+  try {
+    const raw = localStorage.getItem("nma-blacklisted-accounts");
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch { return []; }
 }

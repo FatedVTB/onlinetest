@@ -81,7 +81,9 @@ export function updatePublicProfile(p: PublicProfile): void {
 }
 
 export function getAllPublicProfiles(): PublicProfile[] {
-  return Object.values(loadJSON<Record<string, PublicProfile>>(PUBLIC_PROFILES_KEY, {}));
+  const blacklist = new Set<string>(loadJSON<string[]>("nma-blacklisted-accounts", []));
+  return Object.values(loadJSON<Record<string, PublicProfile>>(PUBLIC_PROFILES_KEY, {}))
+    .filter(p => !blacklist.has(p.username));
 }
 
 export function getPublicProfile(username: string): PublicProfile | null {

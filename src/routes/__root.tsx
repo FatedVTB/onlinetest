@@ -17,7 +17,7 @@ import {
   type Rank, type Aspect, type Flaw, type SetLog,
 } from "@/lib/game";
 import { rollGuaranteedMemoryDrop } from "@/lib/memories";
-import { syncFromSupabase } from "@/lib/supabase";
+import { syncFromSupabase, pushKeyToSupabase } from "@/lib/supabase";
 
 import appCss from "../styles.css?url";
 
@@ -425,13 +425,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
  */
 function SyncComponent() {
   useEffect(() => {
-    // Build the list of keys to sync — shared social keys + the current user's game state.
-    // The game state key is passed as an extraKey so it gets pulled from Supabase on every
-    // sync tick, keeping progress up-to-date if the user switches devices.
     const user = getCurrentUser();
     const extraKeys: string[] = (user && user !== "__guest__")
       ? [`nma-state-${user}`]
       : [];
+
+    // If a user is already logged in on this device, re-push their account entry
+    // to Supabase immediately. This ensures the account survives any admin data
+    // wipes and is always available for cross-device login without delay.
+    if (user && user !== "__guest__") {
+      pushKeyToSupabase("nma-accounts"); // safe merge-push — won't erase other accounts
+    }
 
     // Pull everything down immediately.
     syncFromSupabase(extraKeys);

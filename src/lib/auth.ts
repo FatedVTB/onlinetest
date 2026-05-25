@@ -8,7 +8,7 @@
 //   "nma-state-{username}"  — per-user game state
 //   "shadow-slave-state-v1" — legacy (pre-accounts) save; migrated on first register
 
-import { syncKeyFromSupabase, pushKeyToSupabase } from "./supabase";
+import { syncKeyFromSupabase, pushKeyToSupabase, getBlacklistedAccounts } from "./supabase";
 
 const ACCOUNTS_KEY   = "nma-accounts";
 const SESSION_KEY    = "nma-session";
@@ -157,6 +157,11 @@ export async function login(
 
   const account = accounts[key];
   if (!account) return { success: false, error: "No account found with that username." };
+
+  // Check blacklist (admin-deleted accounts) — pull latest from Supabase first
+  await syncKeyFromSupabase("nma-blacklisted-accounts");
+  if (getBlacklistedAccounts().includes(key))
+    return { success: false, error: "This account has been disabled." };
 
   const hash = await hashPassword(password);
   if (hash !== account.passwordHash)

@@ -40,74 +40,52 @@ const RANK_BORDER: Record<MemoryRank, string> = {
   Divine:      "rgba(255,200,80,0.9)",
 };
 
-// ── Desktop memory-orb positions ───────────────────────────────────────────
-// Safe zones: left margin (x 2–31 %) and right margin (x 69–98 %).
-// The centre column (≈33–67 % x) is kept clear for the soul text.
-// y is capped at 85 % so no orb can ever overlap the fixed bottom nav bar.
-// 59 positions total — enough that wrapping only occurs at very high counts.
-const DESKTOP_FLOAT_POS: Array<{ x: number; y: number }> = [
-  // ── Outermost left column (x ≈ 4) ──
-  { x: 4,  y: 6  }, { x: 4,  y: 18 }, { x: 4,  y: 30 }, { x: 4,  y: 42 },
-  { x: 4,  y: 54 }, { x: 4,  y: 66 }, { x: 4,  y: 78 },
-  // ── Inner-left column (x ≈ 10) ──
-  { x: 10, y: 12 }, { x: 10, y: 24 }, { x: 10, y: 36 }, { x: 10, y: 48 },
-  { x: 10, y: 60 }, { x: 10, y: 72 }, { x: 10, y: 83 },
-  // ── Mid-left column (x ≈ 17) ──
-  { x: 17, y: 5  }, { x: 17, y: 17 }, { x: 17, y: 29 }, { x: 17, y: 41 },
-  { x: 17, y: 53 }, { x: 17, y: 65 }, { x: 17, y: 77 },
-  // ── Near-left column (x ≈ 24) ──
-  { x: 24, y: 9  }, { x: 24, y: 21 }, { x: 24, y: 33 }, { x: 24, y: 45 },
-  { x: 24, y: 57 }, { x: 24, y: 69 }, { x: 24, y: 81 },
-  // ── Near-right column (x ≈ 76) ──
-  { x: 76, y: 9  }, { x: 76, y: 21 }, { x: 76, y: 33 }, { x: 76, y: 45 },
-  { x: 76, y: 57 }, { x: 76, y: 69 }, { x: 76, y: 81 },
-  // ── Mid-right column (x ≈ 83) ──
-  { x: 83, y: 5  }, { x: 83, y: 17 }, { x: 83, y: 29 }, { x: 83, y: 41 },
-  { x: 83, y: 53 }, { x: 83, y: 65 }, { x: 83, y: 77 },
-  // ── Inner-right column (x ≈ 90) ──
-  { x: 90, y: 12 }, { x: 90, y: 24 }, { x: 90, y: 36 }, { x: 90, y: 48 },
-  { x: 90, y: 60 }, { x: 90, y: 72 }, { x: 90, y: 83 },
-  // ── Outermost right column (x ≈ 96) ──
-  { x: 96, y: 6  }, { x: 96, y: 18 }, { x: 96, y: 30 }, { x: 96, y: 42 },
-  { x: 96, y: 54 }, { x: 96, y: 66 }, { x: 96, y: 78 },
-  // ── Top strip (above the soul text, centre x is fine here) ──
-  { x: 37, y: 3  }, { x: 50, y: 5  }, { x: 63, y: 3  },
-
-  // ── Centre fill — only reached at ~60+ memories ──────────────────────────
-  // Text labels start at ≈44 vh and end at ≈70 vh; orbs go above and below.
-  // x: 38–63 % is the safe centre band that avoids the viewport margins.
-  { x: 42, y: 9  }, { x: 55, y: 6  }, { x: 61, y: 13 },
-  { x: 38, y: 17 }, { x: 50, y: 14 }, { x: 63, y: 21 },
-  { x: 41, y: 25 }, { x: 56, y: 29 }, { x: 47, y: 33 },
-  { x: 62, y: 37 }, { x: 38, y: 35 }, { x: 52, y: 39 },
-  { x: 43, y: 73 }, { x: 56, y: 76 }, { x: 61, y: 80 },
-  { x: 38, y: 78 }, { x: 50, y: 82 }, { x: 63, y: 74 },
-];
+// ── Desktop memory-orb positions ─────────────────────────────────────────────
+// Grid covers the entire viewport.  The soul-text zone (≈ x 39–61 %, y 31–63 %)
+// and bottom-nav zone (y > 85 %) are excluded.
+// Columns are ordered outermost → innermost so the margins fill first; the
+// centre only populates once there are enough memories to warrant it (~140+).
+// ~260 unique positions — overlap shouldn't occur in normal play.
+const DESKTOP_FLOAT_POS: Array<{ x: number; y: number }> = (() => {
+  // Pairs ordered by distance from the centre (50 %): furthest first.
+  // Each pair is [leftX, rightX].
+  const colPairs: [number, number][] = [
+    [3, 97], [8, 92], [13, 87], [18, 82],
+    [23, 77], [28, 72], [33, 67], [38, 62],
+    [43, 57], [48, 52],
+  ];
+  const ys = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84];
+  const out: Array<{ x: number; y: number }> = [];
+  for (const [lx, rx] of colPairs) {
+    for (const y of ys) {
+      // Exclude the soul-text zone: roughly x 39–61 %, y 31–63 %
+      const inTextZone = (x: number) => x >= 39 && x <= 61 && y >= 31 && y <= 63;
+      if (!inTextZone(lx)) out.push({ x: lx, y });
+      if (!inTextZone(rx)) out.push({ x: rx, y });
+    }
+  }
+  return out;
+})();
 
 // ── Mobile memory-orb positions ────────────────────────────────────────────
 // On a narrow phone the text column spans ~8–92 % of the viewport width, so
-// orbs live in the extreme left/right strips (x ≤ 8 % or x ≥ 92 %) and the
-// top strip (y ≤ 5 %).  y is hard-capped at 85 % — nothing enters the bottom
-// nav zone.  38 positions means memories stay visible up to much higher counts
-// before cycling.
-const MOBILE_FLOAT_POS: Array<{ x: number; y: number }> = [
-  // ── Far-left strip (x ≈ 3) ──
-  { x: 3, y: 8  }, { x: 3, y: 18 }, { x: 3, y: 28 }, { x: 3, y: 38 },
-  { x: 3, y: 48 }, { x: 3, y: 58 }, { x: 3, y: 68 }, { x: 3, y: 78 },
-  { x: 3, y: 85 },
-  // ── Inner-left strip (x ≈ 7) ──
-  { x: 7, y: 13 }, { x: 7, y: 23 }, { x: 7, y: 33 }, { x: 7, y: 43 },
-  { x: 7, y: 53 }, { x: 7, y: 63 }, { x: 7, y: 73 }, { x: 7, y: 83 },
-  // ── Far-right strip (x ≈ 97) ──
-  { x: 97, y: 8  }, { x: 97, y: 18 }, { x: 97, y: 28 }, { x: 97, y: 38 },
-  { x: 97, y: 48 }, { x: 97, y: 58 }, { x: 97, y: 68 }, { x: 97, y: 78 },
-  { x: 97, y: 85 },
-  // ── Inner-right strip (x ≈ 93) ──
-  { x: 93, y: 13 }, { x: 93, y: 23 }, { x: 93, y: 33 }, { x: 93, y: 43 },
-  { x: 93, y: 53 }, { x: 93, y: 63 }, { x: 93, y: 73 }, { x: 93, y: 83 },
-  // ── Top strip (centre x is safe this high up) ──
-  { x: 20, y: 3 }, { x: 40, y: 4 }, { x: 60, y: 3 }, { x: 80, y: 4 },
-];
+// only the far left/right strips and a top strip are safe.
+// y is hard-capped at 85 % — nothing enters the bottom-nav zone.
+// ~53 unique positions; the left/right strips widen slightly to fit more orbs.
+const MOBILE_FLOAT_POS: Array<{ x: number; y: number }> = (() => {
+  const xs = [3, 6, 94, 97]; // two columns per side
+  const ys = [7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84];
+  const topStrip = [
+    { x: 18, y: 3 }, { x: 33, y: 4 }, { x: 50, y: 3 }, { x: 67, y: 4 }, { x: 82, y: 3 },
+  ];
+  const out = [...topStrip];
+  for (const x of xs) {
+    for (const y of ys) {
+      out.push({ x, y });
+    }
+  }
+  return out;
+})();
 
 const STAR_PTS: Array<{ x: number; y: number }> = [
   { x: 10, y: 7  }, { x: 28, y: 4  }, { x: 50, y: 8  }, { x: 72, y: 5  }, { x: 90, y: 10 },

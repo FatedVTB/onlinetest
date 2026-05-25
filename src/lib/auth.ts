@@ -1,12 +1,14 @@
 // ── Account registry ───────────────────────────────────────────────────────
-// All data lives in localStorage — no server required.
-// Each account gets its own state key so multiple users can share a device.
+// Account credentials sync to Supabase so login works on any device.
+// Game state per user also syncs to Supabase.
 //
 // Keys used:
 //   "nma-accounts"          — registry of {username: {passwordHash, createdAt}}
 //   "nma-session"           — currently logged-in username  { username: string }
 //   "nma-state-{username}"  — per-user game state
 //   "shadow-slave-state-v1" — legacy (pre-accounts) save; migrated on first register
+
+import { syncKeyFromSupabase, pushKeyToSupabase } from "./supabase";
 
 const ACCOUNTS_KEY   = "nma-accounts";
 const SESSION_KEY    = "nma-session";
@@ -103,17 +105,21 @@ export async function register(
   if (password.length < 6)
     return { success: false, error: "Password must be at least 6 characters." };
 
+  // Pull the latest account registry from Supabase before checking for conflicts —
+  // this catches usernames registered on other devices that haven't synced yet locally.
+  await syncKeyFromSupabase(ACCOUNTS_KEY);
+
   const accounts = loadAccounts();
   if (accounts[key]) return { success: false, error: "That username is already taken." };
 
   const passwordHash = await hashPassword(password);
   accounts[key] = { passwordHash, createdAt: Date.now() };
   saveAccounts(accounts);
+  // Push updated account registry to Supabase immediately so other devices see the new account
+  pushKeyToSupabase(ACCOUNTS_KEY);
 
   // Migrate legacy save to the new account key — only for the very first account so
   // that existing players don't lose progress when the account system is introduced.
-  // Always attempt the copy regardless of whether a profile exists: if there is nothing
-  // at the legacy key the setItem is simply skipped.
   const existingCount = Object.keys(accounts).filter(u => u !== key).length;
   if (existingCount === 0) {
     try {
@@ -124,6 +130,10 @@ export async function register(
       }
     } catch {}
   }
+
+  // Push game state to Supabase so it's available when logging in on another device
+  const stateKey = `nma-state-${key}`;
+  if (localStorage.getItem(stateKey)) pushKeyToSupabase(stateKey);
 
   setCurrentUser(key);
   return { success: true };
@@ -136,14 +146,26 @@ export async function login(
   password: string,
 ): Promise<{ success: boolean; error?: string }> {
   const key = username.trim().toLowerCase();
-  const accounts = loadAccounts();
-  const account  = accounts[key];
+  let accounts = loadAccounts();
 
+  // If the account isn't in local storage, pull the latest registry from Supabase.
+  // This is the cross-device login path: the account was created on another device.
+  if (!accounts[key]) {
+    await syncKeyFromSupabase(ACCOUNTS_KEY);
+    accounts = loadAccounts();
+  }
+
+  const account = accounts[key];
   if (!account) return { success: false, error: "No account found with that username." };
 
   const hash = await hashPassword(password);
   if (hash !== account.passwordHash)
     return { success: false, error: "Incorrect password." };
+
+  // Pull this user's game state from Supabase BEFORE setting the session.
+  // store.ts reads localStorage at module-init time, so the state must be in
+  // localStorage before the page reloads after login.
+  await syncKeyFromSupabase(`nma-state-${key}`);
 
   setCurrentUser(key);
   return { success: true };

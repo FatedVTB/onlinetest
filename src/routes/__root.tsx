@@ -426,12 +426,22 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function SyncComponent() {
   useEffect(() => {
     // Upload any existing local data first so other users can see it immediately.
-    // This handles the case where someone was using the app before Supabase was added.
     initialPushAllToSupabase();
-    // Then pull down everyone else's data right away.
-    syncFromSupabase();
-    // Keep polling so invites, session updates, and profile changes appear in real time.
-    const interval = setInterval(syncFromSupabase, 5000);
+
+    // Build the list of keys to sync — shared social keys + the current user's game state.
+    // The game state key is passed as an extraKey so it gets pulled from Supabase on every
+    // sync tick, keeping progress up-to-date if the user switches devices.
+    const user = getCurrentUser();
+    const extraKeys: string[] = (user && user !== "__guest__")
+      ? [`nma-state-${user}`]
+      : [];
+
+    // Pull everything down immediately.
+    syncFromSupabase(extraKeys);
+
+    // Keep polling so invites, session updates, profile changes, and game state
+    // stay in sync across all devices in real time.
+    const interval = setInterval(() => syncFromSupabase(extraKeys), 5000);
     return () => clearInterval(interval);
   }, []);
   return null;

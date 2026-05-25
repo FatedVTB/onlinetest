@@ -7,6 +7,7 @@ import type { Memory, MemoryType } from "./memories";
 import { getUserStateKey, LEGACY_STATE_KEY, getCurrentUser } from "./auth";
 import { updatePublicProfile, getCohortByMember } from "./social";
 import { computeRank } from "./game";
+import { pushKeyToSupabase } from "./supabase";
 
 // Max equipped per category (Infinity = no limit)
 const EQUIP_LIMITS: Record<MemoryType, number> = {
@@ -197,6 +198,11 @@ let state: GameState = (() => {
 
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  // Push game state to Supabase so it's available when logging in from another device.
+  // Only push for real accounts (not guests or the legacy key).
+  if (KEY !== LEGACY_STATE_KEY) {
+    pushKeyToSupabase(KEY);
+  }
   // Publish a public profile snapshot so other accounts on this device can see
   // this player's real stats on the leaderboard, friends list, and cohort view.
   if (typeof window !== "undefined" && state.profile) {

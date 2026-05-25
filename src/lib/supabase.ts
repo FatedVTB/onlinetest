@@ -18,6 +18,7 @@ function headers(extra?: Record<string, string>): Record<string, string> {
 }
 
 export const SHARED_KEYS = new Set([
+  "nma-accounts",                    // account registry — must sync so login works on any device
   "nma-public-profiles",
   "nma-friend-requests",
   "nma-friendships",
@@ -29,8 +30,11 @@ export const SHARED_KEYS = new Set([
 
 const SYNC_EVENT = "ss-data-synced";
 
-export async function syncFromSupabase(): Promise<void> {
+export async function syncFromSupabase(extraKeys: string[] = []): Promise<void> {
   if (typeof localStorage === "undefined") return;
+  const keysToSync = extraKeys.length > 0
+    ? new Set([...SHARED_KEYS, ...extraKeys])
+    : SHARED_KEYS;
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/ss_shared_data?select=key,value`,
@@ -41,7 +45,7 @@ export async function syncFromSupabase(): Promise<void> {
 
     let changed = false;
     for (const row of data) {
-      if (SHARED_KEYS.has(row.key)) {
+      if (keysToSync.has(row.key)) {
         const incoming = JSON.stringify(row.value);
         const current  = localStorage.getItem(row.key);
         if (incoming !== current) {
@@ -53,6 +57,25 @@ export async function syncFromSupabase(): Promise<void> {
 
     if (changed && typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent(SYNC_EVENT));
+    }
+  } catch {}
+}
+
+/**
+ * Pull a single key from Supabase into localStorage.
+ * Used for targeted syncs — e.g. pulling the current user's game state on login.
+ */
+export async function syncKeyFromSupabase(key: string): Promise<void> {
+  if (typeof localStorage === "undefined") return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/ss_shared_data?select=key,value&key=eq.${encodeURIComponent(key)}`,
+      { headers: headers() }
+    );
+    if (!res.ok) return;
+    const data = (await res.json()) as { key: string; value: unknown }[];
+    if (data.length > 0 && data[0].value !== null && data[0].value !== undefined) {
+      try { localStorage.setItem(key, JSON.stringify(data[0].value)); } catch {}
     }
   } catch {}
 }
